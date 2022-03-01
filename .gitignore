@@ -2,7 +2,7 @@
 data/
 
 # to keep empty dirs
-!.gitignore
+!.gitkeep
 
 ## PYTHON TEMPLATE
 # Byte-compiled / optimized / DLL files

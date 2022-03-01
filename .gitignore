@@ -1,3 +1,6 @@
+# project dirs
+data/
+
 # to keep empty dirs
 !.gitignore
 

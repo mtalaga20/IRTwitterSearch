@@ -1,8 +1,8 @@
 # project dirs
-data/
+data/*
 
 # to keep empty dirs
-!*/.gitkeep
+!.gitkeep
 
 ## PYTHON TEMPLATE
 # Byte-compiled / optimized / DLL files

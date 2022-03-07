@@ -3,6 +3,7 @@
 """
 
 import argparse
+from email import header
 from icecream import ic
 import datetime as DT
 import pandas as pd
@@ -17,11 +18,12 @@ def cmd_line_args() -> argparse.Namespace:
 
 
 def test():
-    week_ago = DT.date.today() - DT.timedelta(days = 7)
+    #Short period of time for testing
+    day_ago = DT.date.today() - DT.timedelta(days = 1)
 
     data = scrape(
         words = ['bitcoin', 'ethereum'],  # tweets (or other?) containing these terms?
-        since = week_ago,
+        since = str(day_ago),
         # until = '2021-2-27',  # defaults to today
         from_account = None,
         interval = 1,
@@ -35,7 +37,9 @@ def test():
         geocode = '38.3452,-0.481006,200km'  # within this geographic region
     )
     
+    #df = pd.DataFrame(data)
     print(data)
+    #print(df)
 
 
 def main() -> int:

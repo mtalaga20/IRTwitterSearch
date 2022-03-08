@@ -2,6 +2,21 @@
 
 """
 
+'''
+    Next steps:
+    1. Gather unique words from tweets (create inverted index + posting list)
+    2. Sort unique words
+    3. Create idf values for each word
+    4. Create weights for each document, append to its respective row in data?
+    5. Be able to accept a query and create weights similar to document
+        - Thinking first query will be a category or buzz word, and 2nd query will be a more narrow search.
+            - Alternative could be location?
+        - Example: Category = Cryptocurrency , query = "Is bitcoin going to go up in price in April?"
+        - This allows a smaller set of tweets given by the category.
+    6. Compute cosine similarity between query and tweets  
+    7. Return n tweets
+'''
+
 import argparse
 from email import header
 from icecream import ic
@@ -10,7 +25,9 @@ import pandas as pd
 import numpy as np
 from Scweet.scweet import scrape
 from Scweet.user import get_user_information, get_users_following, get_users_followers
-
+import twint
+import nest_asyncio
+nest_asyncio.apply()
 
 def cmd_line_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='IR Twitter Search')
@@ -45,26 +62,31 @@ def test():
     #Cleaning
     data['Timestamp'] = pd.to_datetime(data['Timestamp'])
     print(data.info())
-    '''
-    Next steps:
-    1. Gather unique words from tweets (unsure if posting list is needed)
-    2. Sort unique words
-    3. Create idf values for each word
-    4. Create weights for each document, append to its respective row in data?
-    5. Be able to accept a query and create weights similar to document
-        - Thinking first query will be a category or buzz word, and 2nd query will be a more narrow search.
-        - Example: Category = Cryptocurrency , query = "Is bitcoin going to go up in price in April?"
-        - This allows a smaller set of tweets given by the category.
-    6. Compute cosine similarity between query and tweets  
-    7. Return n tweets
-    '''
   
-
+def test_twint():
+    '''
+    Twint search based on a keyword, it pulls a certain amount of tweets set by the limit.
+    :return: N/A
+    '''
+    c = twint.Config()
+    #Parameters
+    c.Search = 'keyword'
+    c.Limit = 2000
+    c.Lang = "en"
+    #c.Since=...
+    #c.Until=...
+    c.Pandas = True
+    twint.run.Search(c)
+    df = twint.storage.panda.Tweets_df
+    df.head()
+    df.info()
+    print(df[0])
 
 def main() -> int:
     args = cmd_line_args()
     query: str = args.query
-    test()
+    #test()
+    test_twint()
 
 if __name__ == '__main__':
     main()

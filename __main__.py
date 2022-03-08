@@ -71,16 +71,19 @@ def test_twint():
     c = twint.Config()
     #Parameters
     c.Search = 'keyword'
-    c.Limit = 2000
+    c.Limit = 20
     c.Lang = "en"
     #c.Since=...
     #c.Until=...
+    #c.Custom = ["date", "tweet", "place"]
     c.Pandas = True
     twint.run.Search(c)
-    df = twint.storage.panda.Tweets_df
+    #Selecting specific columns from pulled data
+    df = twint.output.panda.Tweets_df[["date", "username", "tweet", "place"]]
+    df
     df.head()
     df.info()
-    print(df[0])
+
 
 def main() -> int:
     args = cmd_line_args()

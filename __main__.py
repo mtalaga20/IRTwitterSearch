@@ -2,8 +2,22 @@
 
 """
 
+from tokenizer import tokenize
+import argparse
+from email import header
+from icecream import ic
+import datetime as DT
+import pandas as pd
+import numpy as np
+from Scweet.scweet import scrape
+from Scweet.user import get_user_information, get_users_following, get_users_followers
+import twint
+import nest_asyncio
+
 '''
     Next steps:
+    0.1. Tokenize words
+        - stopwords
     1. Gather unique words from tweets (create inverted index + posting list)
     2. Sort unique words
     3. Create idf values for each word
@@ -16,18 +30,6 @@
     6. Compute cosine similarity between query and tweets  
     7. Return n tweets
 '''
-
-import argparse
-from email import header
-from icecream import ic
-import datetime as DT
-import pandas as pd
-import numpy as np
-from Scweet.scweet import scrape
-from Scweet.user import get_user_information, get_users_following, get_users_followers
-import twint
-import nest_asyncio
-nest_asyncio.apply()
 
 def cmd_line_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='IR Twitter Search')
@@ -68,10 +70,11 @@ def test_twint():
     Twint search based on a keyword, it pulls a certain amount of tweets set by the limit.
     :return: N/A
     '''
+    nest_asyncio.apply()
     c = twint.Config()
     #Parameters
     c.Search = 'keyword'
-    c.Limit = 20
+    c.Limit = 30
     c.Lang = "en"
     #c.Since=...
     #c.Until=...
@@ -79,10 +82,14 @@ def test_twint():
     c.Pandas = True
     twint.run.Search(c)
     #Selecting specific columns from pulled data
-    df = twint.output.panda.Tweets_df[["date", "username", "tweet", "place"]]
-    df
+    df = twint.output.panda.Tweets_df[["date", "username", "tweet", "place", "hashtags"]]
+    df['date'] = pd.to_datetime(df['date'])
     df.head()
     df.info()
+    tokenize(df)
+    print(df.loc[0:5]["tweet"])
+
+
 
 
 def main() -> int:

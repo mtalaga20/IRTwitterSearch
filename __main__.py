@@ -3,6 +3,7 @@
 """
 
 from tokenizer import tokenize
+from invertedIndexer import invertedIndex
 import argparse
 from email import header
 from icecream import ic
@@ -17,7 +18,7 @@ import nest_asyncio
 '''
     Next steps:
     0.1. Tokenize words
-        - stopwords
+        - stopwords, stemmer
     1. Gather unique words from tweets (create inverted index + posting list)
     2. Sort unique words
     3. Create idf values for each word
@@ -82,12 +83,14 @@ def test_twint():
     c.Pandas = True
     twint.run.Search(c)
     #Selecting specific columns from pulled data
-    df = twint.output.panda.Tweets_df[["date", "username", "tweet", "place", "hashtags"]]
+    df = twint.output.panda.Tweets_df[["id", "date", "username", "tweet", "place", "hashtags"]]
     df['date'] = pd.to_datetime(df['date'])
     df.head()
     df.info()
     tokenize(df)
     print(df.loc[0:5]["tweet"])
+    collection = invertedIndex(df)
+    print(collection)
 
 
 

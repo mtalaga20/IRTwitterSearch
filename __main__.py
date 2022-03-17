@@ -75,7 +75,7 @@ def test_twint():
     c = twint.Config()
     #Parameters
     c.Search = 'keyword'
-    c.Limit = 30
+    c.Limit = 5
     c.Lang = "en"
     #c.Since=...
     #c.Until=...

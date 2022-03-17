@@ -14,7 +14,7 @@ def invertedIndex(df):
     :return: Inverted index table as a dictionary
     """
     collection = []
-    for i in range(df.shape[0]):
+    for i in range(df.shape[1]):
         tweet = df.loc[i]["tweet"]
         for word in tweet:
             collection.append((word, i))

@@ -74,7 +74,7 @@ def test_twint():
     nest_asyncio.apply()
     c = twint.Config()
     #Parameters
-    c.Search = 'keyword'
+    c.Search = 'dog'
     c.Limit = 5
     c.Lang = "en"
     #c.Since=...
@@ -86,11 +86,12 @@ def test_twint():
     df = twint.output.panda.Tweets_df[["id", "date", "username", "tweet", "place", "hashtags"]]
     df['date'] = pd.to_datetime(df['date'])
     df.head()
-    df.info()
+    #df.info()
     tokenize(df)
-    print(df.loc[0:5]["tweet"])
+    #print(df.loc[0:5]["tweet"])
     collection = invertedIndex(df)
     print(collection)
+    #df.to_csv('data/test_data.csv')
 
 
 

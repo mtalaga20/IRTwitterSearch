@@ -1,3 +1,4 @@
+import numpy as np
 
 def merge(collection):
     """
@@ -7,7 +8,7 @@ def merge(collection):
     """
     #for i in range(len(collection)):
         #for j in range()
-def invertedIndex(df):
+def invertedIndex(dataFrame):
     """
 
     :param df:
@@ -15,13 +16,13 @@ def invertedIndex(df):
     """
     collection = []
     dictionary = {}
-    for i in range(df.shape[1]):
-        tweet = df.loc[i]["tweet"]
+    tweet_count = dataFrame.shape[1]
+    for i in range(tweet_count):
+        tweet = dataFrame.loc[i]["tweet"]
         for word in tweet:
             collection.append((word, i))
     collection = sorted(collection)
-    #Dictionary = { "Term" : [(df, tf) , [(docID, tf)...(docID, tf)]]}
-
+    #Dictionary = { "Term" : [(df, tf, idf) , [(docID, tf)...(docID, tf)]]}
 
     current_term = ""
     prev_docID = -1
@@ -30,7 +31,7 @@ def invertedIndex(df):
         docID = collection[i][1]
         if collection[i][0] != current_term: #New term
             if current_term != "":#Add previous term to dict
-                dictionary.update({current_term: [(df, tf), new_post]})
+                dictionary.update({current_term: [(df, tf, (np.log10(tweet_count/df))), new_post]})
             df, tf, dtf = 1, 1, 1
             current_term = collection[i][0]
             #docID, prev_docID = collection[i][1], collection[i][1]
@@ -46,7 +47,7 @@ def invertedIndex(df):
             tf += 1
             df += 1
             new_post.append([docID, dtf])
-        if i == len(collection):
-            dictionary.update({current_term : [(df, (tf + dtf)), new_post]})
+        #if i == len(collection):
+            #dictionary.update({current_term : [(df, (tf + dtf), (np.log10(tweet_count/df))), new_post]})
         prev_docID = docID
     return dictionary

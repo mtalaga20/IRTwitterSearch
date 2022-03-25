@@ -16,7 +16,8 @@ def invertedIndex(dataFrame):
     """
     collection = []
     dictionary = {}
-    tweet_count = dataFrame.shape[1]
+    tweet_count = len(dataFrame.index)
+    print(f"Count: {tweet_count}")
     for i in range(tweet_count):
         tweet = dataFrame.loc[i]["tweet"]
         for word in tweet:

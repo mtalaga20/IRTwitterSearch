@@ -8,16 +8,17 @@ def merge(collection):
     """
     #for i in range(len(collection)):
         #for j in range()
-def invertedIndex(dataFrame):
+def invertedIndex(dataFrame, tweet_count):
     """
-
+    Inverted index that dissects tweets from the dataframe and
+    adds the to a sorted collection that has each word and its associated tweet id.
+    The collection is added to a dictionary where it further organizes
+    the data to be used later for comparison.
     :param df:
     :return: Inverted index table as a dictionary
     """
     collection = []
     dictionary = {}
-    tweet_count = len(dataFrame.index)
-    print(f"Count: {tweet_count}")
     for i in range(tweet_count):
         tweet = dataFrame.loc[i]["tweet"]
         for word in tweet:
@@ -28,12 +29,14 @@ def invertedIndex(dataFrame):
     current_term = ""
     prev_docID = -1
     df, tf, dtf = 0, 0, 0
+    term_count = 0
     for i in range(len(collection)):
         docID = collection[i][1]
         if collection[i][0] != current_term: #New term
             if current_term != "":#Add previous term to dict
                 dictionary.update({current_term: [(df, tf, (np.log10(tweet_count/df))), new_post]})
             df, tf, dtf = 1, 1, 1
+            term_count += 1
             current_term = collection[i][0]
             #docID, prev_docID = collection[i][1], collection[i][1]
             new_post = [[docID, tf]]
@@ -51,4 +54,4 @@ def invertedIndex(dataFrame):
         #if i == len(collection):
             #dictionary.update({current_term : [(df, (tf + dtf), (np.log10(tweet_count/df))), new_post]})
         prev_docID = docID
-    return dictionary
+    return dictionary, term_count

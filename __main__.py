@@ -4,6 +4,7 @@
 
 from tokenizer import tokenize
 from invertedIndexer import invertedIndex
+from vectorSpace import vectorSpace
 import argparse
 from email import header
 from icecream import ic
@@ -18,7 +19,7 @@ import nest_asyncio
 '''
     Next steps:
     0.1. Tokenize words
-        - stopwords, stemmer
+        - stopwords, stemmer, slang?
     1. Gather unique words from tweets (create inverted index + posting list)
     2. Sort unique words
     3. Create idf values for each word
@@ -74,8 +75,8 @@ def test_twint():
     nest_asyncio.apply()
     c = twint.Config()
     #Parameters
-    c.Search = 'dog'
-    c.Limit = 5
+    c.Search = 'dream'
+    c.Limit = 20
     c.Lang = "en"
     #c.Since=...
     #c.Until=...
@@ -88,12 +89,11 @@ def test_twint():
     df.head()
     #df.info()
     tokenize(df)
-    #print(df.loc[0:5]["tweet"])
-    collection = invertedIndex(df)
+    tweet_count = len(df.index)
+    collection, term_count = invertedIndex(df, tweet_count)
     print(collection)
-    #df.to_csv('data/test_data.csv')
-
-
+    vs = vectorSpace(collection, term_count, tweet_count)
+    print(vs)
 
 
 def main() -> int:

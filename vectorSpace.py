@@ -12,11 +12,11 @@ def vectorSpace(invertedIndex, term_count, doc_count):
     term_position = 0
     for term, values in invertedIndex.items():
         idf = values[0][2]
-
+        print(term[0], values, len(vector_space), doc_count , len(vector_space[0]))
         for doc in values[1]: #Update positions in vector space
             docID, tf = doc[0], doc[1]
-            print(tf)
-            vectorSpace[docID][term_position] = idf * tf
+            print(docID, tf)
+            vector_space[docID][term_position] = idf * tf
 
         term_position += 1
 

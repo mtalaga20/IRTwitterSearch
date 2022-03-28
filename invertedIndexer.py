@@ -24,6 +24,7 @@ def invertedIndex(dataFrame, tweet_count):
         for word in tweet:
             collection.append((word, i))
     collection = sorted(collection)
+    # Note; shouldnt df = idf forall cases?
     #Dictionary = { "Term" : [(df, tf, idf) , [(docID, tf)...(docID, tf)]]}
 
     current_term = ""

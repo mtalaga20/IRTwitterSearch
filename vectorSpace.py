@@ -21,23 +21,23 @@ def vectorSpace(invertedIndex, term_count, doc_count):
     return vector_space
 
 
-def queryVector(query_data_frame, term_idf_dict, term_count):
+def createQueryVector(queryList, invertedIndex, term_count):
     """
-    :param query_data_frame: Data frame for query (post-tokenizing)
-    :param term_idf_dict: Dictionary mapping term-> idf ( "Term": IDF , ...)
+    :param queryList: List of tokens making up query (post-tokenizing)
+    :param invertedIndex: 
     :param term_count: Integer for number of unique terms
         # NOTE: Maybe we can replace with len(term_idf_dict)?
     :return: Vector 1 x (term_count) size representing the query
     """
 
-    vector = [0 for i in range(term_count)]
+    vector = [0 for _ in range(term_count)]
 
     term_pos = 0
-    for word in query_data_frame["tweet"]:
-        if word in term_idf_dict:
-            # Position = old value (in case duplicate words in query) + idf * 1 
-            #               The use of old value makes idf * 1 work
-            vector[term_pos] = vector[term_pos] + term_idf_dict[word]
+    for term, values in invertedIndex.items():
+        idf = values[0][2]
+        for word in queryList:
+            if word == term:
+                vector[term_pos] = vector[term_pos] + idf
         term_pos += 1
     return vector
 

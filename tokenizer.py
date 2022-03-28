@@ -8,6 +8,9 @@ stopwords = stopwords.words('english')
 ps = nltk.PorterStemmer() #Porters Stemmer
 
 def tokenize_query(queryString):
+    # <TODO> We need to figure out how to deal with something like print(hello)
+    #   this is relevant to both querys and documents
+
     # Replace punctuation
     queryString = re.sub(r"[^a-zA-Z0–9 ]", "", queryString)
     # Split string on SPACES
@@ -15,7 +18,6 @@ def tokenize_query(queryString):
     # Remove stop words
     i = 0
     while i < len(queryList):
-        print(i, queryList)
         word = queryList[i]
         if word in stopwords:
             queryList.remove(word)
@@ -25,7 +27,8 @@ def tokenize_query(queryString):
         i += 1
     # I feel like the next stop is not necessary because we catch NULL words earlier
     # df.apply(lambda x: [word for word in x if word != " " and word != ""])
-    return pd.DataFrame(queryList)
+    #return pd.DataFrame(queryList)
+    return queryList
 
 def tokenize(df):
     """

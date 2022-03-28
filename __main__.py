@@ -2,9 +2,11 @@
 
 """
 
-from tokenizer import tokenize
+from gc import collect
+from winreg import QueryValue
+from tokenizer import tokenize, tokenize_query
 from invertedIndexer import invertedIndex
-from vectorSpace import vectorSpace
+from vectorSpace import cosineSimilarity, createQueryVector, vectorSpace
 import argparse
 from email import header
 from icecream import ic
@@ -94,13 +96,54 @@ def test_twint():
     print(collection)
     vs = vectorSpace(collection, term_count, tweet_count)
     print(vs)
+    
+def Search(query):
+    nest_asyncio.apply()
+    c = twint.Config()
+    #Parameters
+    c.Search = query
+    c.Limit = 20
+    c.Lang = "en"
+    c.Pandas = True
+    # Executing Search
+    twint.run.Search(c)
+
+    #Selecting specific columns from pulled data
+    df = twint.output.panda.Tweets_df[["id", "date", "username", "tweet", "place", "hashtags"]]
+    df['date'] = pd.to_datetime(df['date'])
+    #df.info()
+    tokenize(df)
+    tweet_count = len(df.index)
+    collection, term_count = invertedIndex(df, tweet_count)
+    # print(collection)
+    vs = vectorSpace(collection, term_count, tweet_count)
+    # Tokenize query
+    queryTokenList = tokenize_query(query)
+
+    # Create query vector
+    queryVector = createQueryVector(queryTokenList, collection, term_count)
+
+    # Calculate cosine similarities and store in dictionary
+    cosSimDictionary = { }
+    print(queryVector)
+    for i in range(len(vs)):
+        vector = vs[i]
+        cosSimDictionary[i] = cosineSimilarity(vector, queryVector)
+        print(df["tweet"][i])
+        print(i)
+        print(cosSimDictionary[i])
+        # print(vector)
+        print()
+    print(cosSimDictionary)
 
 
 def main() -> int:
     args = cmd_line_args()
     query: str = args.query
     #test()
-    test_twint()
+    # test_twint()
+    query = "Hello World"
+    Search(query)
 
 if __name__ == '__main__':
     main()

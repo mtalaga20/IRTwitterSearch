@@ -1,2 +1,4 @@
 Scweet==1.8
 icecream
+nltk
+numpy

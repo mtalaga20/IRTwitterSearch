@@ -1,20 +1,13 @@
 import numpy as np
 
-def merge(collection):
-    """
-
-    :param collection:
-    :return: list of tuples with word and doc id
-    """
-    #for i in range(len(collection)):
-        #for j in range()
 def invertedIndex(dataFrame, tweet_count):
     """
     Inverted index that dissects tweets from the dataframe and
     adds the to a sorted collection that has each word and its associated tweet id.
     The collection is added to a dictionary where it further organizes
     the data to be used later for comparison.
-    :param df:
+    Dictionary = {"Term" : [(df, tf, idf) , [(docID, tf)...(docID, tf)]]}
+    :param df: pandas dataFrame that has several tweets
     :return: Inverted index table as a dictionary
     """
     collection = []
@@ -24,8 +17,6 @@ def invertedIndex(dataFrame, tweet_count):
         for word in tweet:
             collection.append((word, i))
     collection = sorted(collection)
-    # Note; shouldnt df = idf forall cases?
-    #Dictionary = { "Term" : [(df, tf, idf) , [(docID, tf)...(docID, tf)]]}
 
     current_term = ""
     prev_docID = -1
@@ -39,7 +30,6 @@ def invertedIndex(dataFrame, tweet_count):
             df, tf, dtf = 1, 1, 1
             term_count += 1
             current_term = collection[i][0]
-            #docID, prev_docID = collection[i][1], collection[i][1]
             new_post = [[docID, tf]]
             #Term is not adding to posting list
         elif collection[i][0] == current_term and collection[i][1] == prev_docID: #Same term same doc
@@ -52,7 +42,5 @@ def invertedIndex(dataFrame, tweet_count):
             tf += 1
             df += 1
             new_post.append([docID, dtf])
-        #if i == len(collection):
-            #dictionary.update({current_term : [(df, (tf + dtf), (np.log10(tweet_count/df))), new_post]})
         prev_docID = docID
     return dictionary, term_count

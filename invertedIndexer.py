@@ -1,6 +1,6 @@
 import numpy as np
 
-def invertedIndex(dataFrame, tweet_count):
+def invertedIndex(tweets, tweet_count):
     """
     Inverted index that dissects tweets from the dataframe and
     adds the to a sorted collection that has each word and its associated tweet id.
@@ -13,7 +13,7 @@ def invertedIndex(dataFrame, tweet_count):
     collection = []
     dictionary = {}
     for i in range(tweet_count):
-        tweet = dataFrame.loc[i]["tweet"]
+        tweet = tweets[i]
         for word in tweet:
             collection.append((word, i))
     collection = sorted(collection)

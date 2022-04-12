@@ -38,6 +38,6 @@ def query():
     content = request.json
     query: str = content['query']
     terms = query.split()
-    # TODO make actual call for usefult data here
+    # TODO make actual call for useful data here
     results = ' '.join(terms) if random.choice((True, False)) else ' '.join(reversed(terms))
     return {'ranked_results': results}

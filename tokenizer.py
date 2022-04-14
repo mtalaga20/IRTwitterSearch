@@ -1,4 +1,3 @@
-import pandas as pd
 import re # Regex package
 import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
@@ -27,7 +26,6 @@ def tokenize_query(queryString):
         i += 1
     # I feel like the next stop is not necessary because we catch NULL words earlier
     # df.apply(lambda x: [word for word in x if word != " " and word != ""])
-    #return pd.DataFrame(queryList)
     return queryList
 
 def tokenize(df):
@@ -38,7 +36,6 @@ def tokenize(df):
     """
 
     #Remove punctuation
-    df["original_tweet"] = df["tweet"]
     df["tweet"] = df["tweet"].str.replace("[^a-zA-Z0–9 ]", "")
     #Tokenize
     df["tweet"] = df["tweet"].apply(lambda x: x.lower().split(" "))

@@ -105,19 +105,13 @@ def test_twint():
     #print(vs)
     
 def Search(query):
-    nest_asyncio.apply()
-    c = twint.Config()
-    #Parameters
-    c.Search = query
-    c.Limit = 500
-    c.Lang = "en"
-    c.Pandas = True
-    # Executing Search
-    twint.run.Search(c)
 
     #Selecting specific columns from pulled data
-    df = twint.output.panda.Tweets_df[["id", "date", "username", "tweet", "place", "hashtags"]]
-    df['date'] = pd.to_datetime(df['date'])
+    #For loading csv:
+    data_dir = "crawlData"
+    df = pd.read_csv(f"{data_dir}/output.csv")
+
+    #df['date'] = pd.to_datetime(df['date'])
     tokenize(df)
     tweet_count = len(df.index)
     collection, term_count = invertedIndex(df["tweet"], tweet_count)
@@ -125,6 +119,8 @@ def Search(query):
     pickle.dump(collection, output)
     output.close()
     vs = vectorSpace(collection, term_count, tweet_count)
+
+    #Dynamic tasks
     # Tokenize query
     queryTokenList = tokenize_query(query)
 

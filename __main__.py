@@ -1,7 +1,8 @@
 """
 
 """
-
+#from copyreg import pickle
+import pickle
 from gc import collect
 from winreg import QueryValue
 from tokenizer import tokenize, tokenize_query
@@ -77,32 +78,38 @@ def test_twint():
     nest_asyncio.apply()
     c = twint.Config()
     #Parameters
-    c.Search = 'dream'
-    c.Limit = 20
-    c.Lang = "en"
-    #c.Since=...
-    #c.Until=...
-    #c.Custom = ["date", "tweet", "place"]
-    c.Pandas = True
-    twint.run.Search(c)
+    city = ["Kansas", "Missouri", "Pennsylvania", "New York"]
+    for each in city:
+        c.Search = 'Jayhawks'
+        c.Limit = 100
+        c.Lang = "en"
+        c.Store_csv = True
+        c.Output = "./testfile2.csv"
+        #c.Since=...
+        #c.Until=...
+        #c.Custom = ["date", "tweet", "place"]
+        #c.Pandas = True
+        c.Near = each
+        c.Stats = True
+        twint.run.Search(c)
     #Selecting specific columns from pulled data
-    df = twint.output.panda.Tweets_df[["id", "date", "username", "tweet", "place", "hashtags"]]
-    df['date'] = pd.to_datetime(df['date'])
-    df.head()
+    #df = twint.output.panda.Tweets_df[["id", "date", "username", "tweet", "place", "hashtags"]]
+    #df['date'] = pd.to_datetime(df['date'])
+    #df.head()
     #df.info()
-    tokenize(df)
-    tweet_count = len(df.index)
-    collection, term_count = invertedIndex(df, tweet_count)
-    print(collection)
-    vs = vectorSpace(collection, term_count, tweet_count)
-    print(vs)
+    #tokenize(df)
+    #tweet_count = len(df.index)
+    #collection, term_count = invertedIndex(df["tweet"], tweet_count)
+    #print(collection)
+    #vs = vectorSpace(collection, term_count, tweet_count)
+    #print(vs)
     
 def Search(query):
     nest_asyncio.apply()
     c = twint.Config()
     #Parameters
     c.Search = query
-    c.Limit = 20
+    c.Limit = 500
     c.Lang = "en"
     c.Pandas = True
     # Executing Search
@@ -111,11 +118,12 @@ def Search(query):
     #Selecting specific columns from pulled data
     df = twint.output.panda.Tweets_df[["id", "date", "username", "tweet", "place", "hashtags"]]
     df['date'] = pd.to_datetime(df['date'])
-    #df.info()
     tokenize(df)
     tweet_count = len(df.index)
-    collection, term_count = invertedIndex(df, tweet_count)
-    # print(collection)
+    collection, term_count = invertedIndex(df["tweet"], tweet_count)
+    output = open('outputs/IItest.pkl', 'wb')
+    pickle.dump(collection, output)
+    output.close()
     vs = vectorSpace(collection, term_count, tweet_count)
     # Tokenize query
     queryTokenList = tokenize_query(query)
@@ -141,7 +149,7 @@ def main() -> int:
     args = cmd_line_args()
     query: str = args.query
     #test()
-    # test_twint()
+    #test_twint()
     query = "Hello World"
     Search(query)
 

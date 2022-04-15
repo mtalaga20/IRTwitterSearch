@@ -57,7 +57,7 @@ def Search(query):
         cosSimDictionary[i] = cosineSimilarity(vector, queryVector)
     cosSimDictionary = Counter(cosSimDictionary)
     k_tweets = 10 #number of relevant tweets to return
-    cosSimDictionary = cosSimDictionary.most_common(10)
+    cosSimDictionary = cosSimDictionary.most_common(k_tweets)
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]
     return cosSimDictionary
 

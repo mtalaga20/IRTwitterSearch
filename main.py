@@ -2,15 +2,15 @@
 
 """
 import pickle
-from gc import collect
-from winreg import QueryValue
+# from gc import collect
+# from winreg import QueryValue
 from searchEngine.tokenizer import tokenize, tokenize_query
 from searchEngine.invertedIndexer import invertedIndex
 from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorSpace
 import argparse
-from email import header
+# from email import header
 import pandas as pd
-import numpy as np
+# import numpy as np
 from collections import Counter
 
 
@@ -72,14 +72,14 @@ def compile_tweet_list(relevant_tweets):
     return tweet_list
 
 
-def main() -> int:
-    args = cmd_line_args()
-    query: str = args.query
-    query = "Hello World"
+def search(query: str, relevant_doc_ids) -> int:
+    # args = cmd_line_args()
+    # query: str = args.query
+    # query = "Hello World"
     create_Index()
     top_n_tweets = Search(query)
     list = compile_tweet_list(top_n_tweets)
-    print(list)
+    return list
     
 
 if __name__ == '__main__':

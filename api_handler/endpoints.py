@@ -12,7 +12,7 @@ from functools import wraps
 
 from typing import Callable, Any
 
-from SEARCH_ENGINE_PKG import search
+from main import search
 
 
 DIR_PATH = osp.dirname(osp.realpath(__file__))
@@ -39,6 +39,7 @@ def home():
 def query():
     content = request.json
     query: str = content['query']
-    relevant_doc_ids: list[str] = content['relevant_doc_ids']
+    # relevant_doc_ids: list[str] = content['relevant_doc_ids']
+    relevant_doc_ids = None
     results: list = search(query, relevant_doc_ids)  # return a ranked list of {doc_id, rank, relevant uris}
-    return {'ranked_results': results}
+    return {'ranked_results': ic(results)}

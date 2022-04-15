@@ -18,6 +18,7 @@ import base64
 import http.client as hc
 import re
 import json
+import csv
 
 jsonDecoder = json.JSONDecoder()
 
@@ -281,8 +282,10 @@ class Spider:
 
 
 def cb(target_url, content, latency):
-    ic(target_url, content, latency)
-    
+    with open("crawlData/output2.csv", "a", encoding="utf-8") as outFile:
+        csv_writer = csv.writer(outFile, quoting=csv.QUOTE_ALL)
+        for tweet in content:
+            csv_writer.writerow(tweet)
 
 if __name__ == '__main__':
     spider = Spider()

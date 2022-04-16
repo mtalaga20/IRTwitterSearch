@@ -12,13 +12,12 @@ def rocchio(query_vector, tweet_ids):
     df = pd.read_csv("crawlData/output.csv")
     print(tweet_ids)
     summation = np.zeros(len(query_vector))
-    for i in range(1):
-        index = df.index[df['tweet_path']==tweet_ids[i]].values
+    for i in range(len(tweet_ids)):
+        index = df.index[df['tweet_path']==tweet_ids[i][1]].values
         print(index)
         tweet_vector = vs[index[0]]
         summation += np.array(tweet_vector)
 
     query_vector = (np.array(query_vector).dot(alpha)) + (summation.dot(beta))
 
-    print(query_vector)
     return query_vector

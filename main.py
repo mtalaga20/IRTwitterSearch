@@ -1,16 +1,10 @@
-"""
-
-"""
 import pickle
-# from gc import collect
-# from winreg import QueryValue
+from searchEngine.rocchio import rocchio
 from searchEngine.tokenizer import tokenize, tokenize_query
 from searchEngine.invertedIndexer import invertedIndex
 from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorSpace
 import argparse
-# from email import header
 import pandas as pd
-# import numpy as np
 from collections import Counter
 
 
@@ -46,9 +40,9 @@ def Search(query):
     # Tokenize query
     queryTokenList = tokenize_query(query)
 
+    term_count = len(vs[0])
     # Create query vector
-    queryVector = createQueryVector(queryTokenList, collection, 494)
-    #queryVector = createQueryVector(queryTokenList, collection, term_count)
+    queryVector = createQueryVector(queryTokenList, collection, term_count)
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = { }
@@ -59,7 +53,7 @@ def Search(query):
     k_tweets = 10 #number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]
-    return cosSimDictionary
+    return queryVector, cosSimDictionary
 
 def compile_tweet_list(relevant_tweets):
     data_dir = "crawlData"
@@ -73,14 +67,9 @@ def compile_tweet_list(relevant_tweets):
 
 
 def search(query: str, relevant_doc_ids) -> int:
-    # args = cmd_line_args()
-    # query: str = args.query
-    # query = "Hello World"
     create_Index()
-    top_n_tweets = Search(query)
+    query_v, top_n_tweets = Search(query)
     list = compile_tweet_list(top_n_tweets)
+    print(top_n_tweets)
+    #new_query = rocchio(query_v, list)
     return list
-    
-
-if __name__ == '__main__':
-    main()

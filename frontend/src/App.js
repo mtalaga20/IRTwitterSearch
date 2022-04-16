@@ -2,28 +2,69 @@ import './App.css';
 import React, { useState } from 'react';
 import { Typography, Paper, Container, TextField, Button, Divider } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
+import { DataGrid } from "@mui/x-data-grid";
+
+const API_URL = "http://localhost:8000/query"
 
 const DisplayResults = (props) => {
   const tweets = props.tweets
 
-  return (
-    <div>
-      TODO: Display Results
-      {
-        tweets.map((val) => <p>{val}</p>)
+  console.log(tweets)
+  // Grid column definition
+  const columns = [
+    {
+      field: "rank",
+      headerName: "Rank",
+      width: 75
+    },
+    { field: "link", headerName: "Reference", width: 400 },
+    {
+      field: "href",
+      headerName: "Link", width: 500, 
+      renderCell: (params) => {
+        return <a target="_blank" href={params.value} rel="noreferrer">{params.value}</a>
+      }}
+  ];
 
-      }
-    </div>
+  return (
+    <DataGrid
+      columns={columns}
+      loading={tweets.length === 0}
+      rows={tweets}
+      getRowId={row => {
+        return row.rank;
+      }}
+    />
   )
 }
 
 export const App = () => {
   const [results, setResults] = useState(undefined);
+  const [query, setQuery] = useState("");
 
-  const executeSearch = () => {
-    let queryNode = document.getElementById("search-query-field");
-    // TODO: Make this actually call api
-    setResults([queryNode.innerText])
+  const CallAPI = async (queryText) => {
+    let out = { query: queryText }
+    console.log(out)
+
+    return fetch(API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      cors: "no-cors",
+      body: JSON.stringify(out)
+    }).then(res => res.json())
+  }
+
+  const executeSearch = async () => {
+    const res = await CallAPI(query)
+    setResults(res["ranked_results"].map(([rank, link]) => {
+      return {
+        "rank": rank,
+        "link": link,
+        "href": "https://twitter.com" + link
+      }
+    }));
     // TODO: Fix forward ref update here
   }
 
@@ -33,16 +74,16 @@ export const App = () => {
         Twitter Search Tool
       </Typography>
       <Divider />
-      { !results ? // TODO make more nuanced check condition
+      {!results ? // TODO make more nuanced check condition
         (
           <Container maxWidth="lg" style={{ marginTop: "2.5%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
             <Typography variant='h5'>Search for Tweets: </Typography>
             <SearchIcon />
-            <TextField id="search-query-field" label="Query" />
+            <TextField id="search-query-field" label="Query" value={query} onChange={(e) => setQuery(e.target.value)} />
             <Button id="submit-query" variant="text" onClick={executeSearch}>Search</Button>
           </Container>
         )
-        : <DisplayResults tweets={results}/>
+        : <DisplayResults tweets={results} />
       }
     </Paper>
   );

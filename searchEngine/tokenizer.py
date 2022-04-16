@@ -2,7 +2,7 @@ import re # Regex package
 import nltk
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.corpus import stopwords
-nltk.download('stopwords')
+# nltk.download('stopwords')
 stopwords = stopwords.words('english')
 ps = nltk.PorterStemmer() #Porters Stemmer
 

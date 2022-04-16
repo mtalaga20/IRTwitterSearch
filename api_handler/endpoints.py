@@ -3,14 +3,16 @@
 """
 
 import os.path as osp
+import sys; sys.path.append('.')
 
 from icecream import ic
 
 from flask import request, render_template
 from functools import wraps
-import random
 
 from typing import Callable, Any
+
+from main import search
 
 
 DIR_PATH = osp.dirname(osp.realpath(__file__))
@@ -37,7 +39,7 @@ def home():
 def query():
     content = request.json
     query: str = content['query']
-    terms = query.split()
-    # TODO make actual call for useful data here
-    results = ' '.join(terms) if random.choice((True, False)) else ' '.join(reversed(terms))
-    return {'ranked_results': results}
+    # relevant_doc_ids: list[str] = content['relevant_doc_ids']
+    relevant_doc_ids = None
+    results: list = search(query, relevant_doc_ids)  # return a ranked list of {doc_id, rank, relevant uris}
+    return {'ranked_results': ic(results)}

@@ -18,7 +18,6 @@ const MapAPI_Data = ([rank, link]) => {
 const DisplayResults = (props) => {
   const tweets = props.tweets
 
-  console.log(tweets)
   // Grid column definition
   const columns = [
     {
@@ -29,17 +28,31 @@ const DisplayResults = (props) => {
     { field: "link", headerName: "Reference", width: 400 },
     {
       field: "href",
-      headerName: "Link", width: 500, 
+      headerName: "Link", width: 500,
       renderCell: (params) => {
         return <a target="_blank" href={params.value} rel="noreferrer">{params.value}</a>
-      }}
+      }
+    }
   ];
 
   return (
     <>
-      <Button style={{ width: "20%", margin: "0.5% 0 0.5% 70%", border: "0.5px solid #088cb1" }} id="re-query">
-        Update Query
-      </Button>
+      <div style={{ display: "flex", flexDirection: "row" }}>
+        <Button style={{ width: "20%", margin: "0.5% 0% 0.5% 10%", border: "0.5px solid #088cb1" }} id="re-query"
+          onClick={(e) => {
+            // Clear results by setting to undefined
+            // Clear old query? 
+            // TODO: Determine if we actually want to clear query
+            props.modifyQuery(undefined)
+            props.modifyResults(undefined)
+          }}
+        >
+          Home
+        </Button>
+        <Button style={{ width: "20%", margin: "0.5% 0 0.5% 40%", border: "0.5px solid #088cb1" }} id="re-query">
+          Update Query
+        </Button>
+      </div>
       <DataGrid
         columns={columns}
         loading={tweets.length === 0}
@@ -83,7 +96,6 @@ export const App = () => {
 
   const CallAPI = async (queryText) => {
     let out = { query: queryText }
-    console.log(out)
 
     return fetch(API_URL, {
       method: 'POST',
@@ -104,13 +116,26 @@ export const App = () => {
       {!results ? // TODO make more nuanced check condition
         (
           <Container maxWidth="lg" style={{ marginTop: "2.5%", display: "flex", flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
-            <Typography variant='h5'>Search for Tweets: </Typography>
+            <Typography style={{ margin: "0 10% 0 0" }} variant='h5'>Search for Tweets: </Typography>
             <SearchIcon />
-            <TextField id="search-query-field" label="Query" value={query} onChange={(e) => setQuery(e.target.value)} />
+            <TextField
+              id="search-query-field"
+              label="Query"
+              value={query}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  executeSearch();
+                  e.preventDefault();
+                }
+              }}
+              onChange={(e) => setQuery(e.target.value)} />
             <Button id="submit-query" variant="text" onClick={executeSearch}>Search</Button>
           </Container>
         )
-        : <DisplayResults tweets={results} />
+        : <DisplayResults
+          modifyResults={(up) => setResults(up)}
+          modifyQuery={(up) => setQuery(up)}
+          tweets={results} />
       }
     </Paper>
   );

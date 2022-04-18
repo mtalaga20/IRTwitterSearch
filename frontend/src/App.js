@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Typography, Paper, Container, TextField, Button, Divider } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid } from "@mui/x-data-grid";
@@ -42,6 +42,42 @@ export const App = () => {
   const [results, setResults] = useState(undefined);
   const [query, setQuery] = useState("");
 
+  const searchParams = new URLSearchParams(window.location.search)
+
+  const queryParam = searchParams.has("q") ? searchParams.get("q") : null
+
+  const executeSearch = async () => {
+    const res = await CallAPI(query)
+    if (res) {
+      setResults(res["ranked_results"].map(([rank, link]) => {
+        return {
+          "rank": rank,
+          "link": link,
+          "href": "https://twitter.com" + link
+        }
+      }));
+    }
+    // TODO: Fix forward ref update here
+  }
+
+  useEffect(() => {
+    if (queryParam == null) {
+      return;
+    }
+    // Update the query automatically
+    CallAPI(queryParam).then((res) => {
+      if (res) {
+        setResults(res["ranked_results"].map(([rank, link]) => {
+          return {
+            "rank": rank,
+            "link": link,
+            "href": "https://twitter.com" + link
+          }
+        }));
+      }
+    })
+  }, [queryParam])
+
   const CallAPI = async (queryText) => {
     let out = { query: queryText }
     console.log(out)
@@ -54,18 +90,6 @@ export const App = () => {
       cors: "no-cors",
       body: JSON.stringify(out)
     }).then(res => res.json())
-  }
-
-  const executeSearch = async () => {
-    const res = await CallAPI(query)
-    setResults(res["ranked_results"].map(([rank, link]) => {
-      return {
-        "rank": rank,
-        "link": link,
-        "href": "https://twitter.com" + link
-      }
-    }));
-    // TODO: Fix forward ref update here
   }
 
   return (

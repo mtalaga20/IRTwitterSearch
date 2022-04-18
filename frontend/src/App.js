@@ -6,6 +6,15 @@ import { DataGrid } from "@mui/x-data-grid";
 
 const API_URL = "http://localhost:8000/query"
 
+const MapAPI_Data = ([rank, link]) => {
+  // Used for mapping what we get from the API to how we display it
+  return {
+    "rank": rank,
+    "link": link,
+    "href": "https://twitter.com" + link
+  }
+}
+
 const DisplayResults = (props) => {
   const tweets = props.tweets
 
@@ -27,14 +36,20 @@ const DisplayResults = (props) => {
   ];
 
   return (
-    <DataGrid
-      columns={columns}
-      loading={tweets.length === 0}
-      rows={tweets}
-      getRowId={row => {
-        return row.rank;
-      }}
-    />
+    <>
+      <Button style={{ width: "20%", margin: "0.5% 0 0.5% 70%", border: "0.5px solid #088cb1" }} id="re-query">
+        Update Query
+      </Button>
+      <DataGrid
+        columns={columns}
+        loading={tweets.length === 0}
+        rows={tweets}
+        checkboxSelection
+        getRowId={row => {
+          return row.rank;
+        }}
+      />
+    </>
   )
 }
 
@@ -49,13 +64,7 @@ export const App = () => {
   const executeSearch = async () => {
     const res = await CallAPI(query)
     if (res) {
-      setResults(res["ranked_results"].map(([rank, link]) => {
-        return {
-          "rank": rank,
-          "link": link,
-          "href": "https://twitter.com" + link
-        }
-      }));
+      setResults(res["ranked_results"].map(MapAPI_Data));
     }
     // TODO: Fix forward ref update here
   }
@@ -67,13 +76,7 @@ export const App = () => {
     // Update the query automatically
     CallAPI(queryParam).then((res) => {
       if (res) {
-        setResults(res["ranked_results"].map(([rank, link]) => {
-          return {
-            "rank": rank,
-            "link": link,
-            "href": "https://twitter.com" + link
-          }
-        }));
+        setResults(res["ranked_results"].map(MapAPI_Data));
       }
     })
   }, [queryParam])

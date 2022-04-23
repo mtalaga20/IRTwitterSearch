@@ -65,11 +65,15 @@ def compile_tweet_list(relevant_tweets):
         tweet_list.append((rank, uri))
     return tweet_list
 
+def relevant_user_tweets(relevant_tweets, original_query):
+    """Returns new tweets based on relevant tweets provided by the user"""
+    updated_query = rocchio(original_query, relevant_tweets)
+    query_v, top_n_tweets = Search(updated_query)
+    list = compile_tweet_list(top_n_tweets)
+    return list
 
 def search(query: str, relevant_doc_ids) -> int:
     create_Index()
     query_v, top_n_tweets = Search(query)
     list = compile_tweet_list(top_n_tweets)
-    print(top_n_tweets)
-    #new_query = rocchio(query_v, list)
     return list

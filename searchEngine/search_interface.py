@@ -109,10 +109,10 @@ def compile_tweet_list(relevant_tweets, df):
         tweet_list.append((rank, uri, tweet))
     return tweet_list
 
-def relevant_user_tweets(relevant_tweets: list[str], original_query: list[float], original_query_str: list[str]):
+def relevant_user_tweets(relevant_tweets: list[str], irrelevant_tweets: list[str], original_query: list[float], original_query_str: list[str]):
     """Returns new tweets based on relevant tweets provided by the user"""
     df, index, vs = load_data()
-    updated_query_v = rocchio(original_query, relevant_tweets, df, vs)
+    updated_query_v = rocchio(original_query, relevant_tweets, irrelevant_tweets, df, vs)
     top_n_tweets = Vector_Search(updated_query_v, index, tokenize(original_query_str)) #TODO Gather original query token
     list = compile_tweet_list(top_n_tweets)
     return list

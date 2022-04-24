@@ -77,7 +77,8 @@ def compile_tweet_list(relevant_tweets):
     for i in range(len(relevant_tweets)):
         rank = i+1
         uri = df['tweet_path'][relevant_tweets[i][0]]
-        tweet_list.append((rank, uri))
+        tweet = df["tweet"][relevant_tweets[i][0]]
+        tweet_list.append((rank, uri, tweet))
     return tweet_list
 
 def relevant_user_tweets(relevant_tweets, original_query):

@@ -1,5 +1,5 @@
 # project dirs
-data/*
+# data/*
 
 # to keep empty dirs
 !.gitkeep

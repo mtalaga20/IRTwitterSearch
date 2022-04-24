@@ -1,9 +1,9 @@
 """
-
+Threaded crawler based on Mercator scheme, specialized for Twitter.
 """
 
 from threading import Thread, Event, Timer as TimerTrigger, Condition
-from queue import Queue
+from queue import Queue, Empty
 from typing import Any, Callable
 import requests
 from bs4 import BeautifulSoup
@@ -14,7 +14,8 @@ from urllib.parse import urlparse, urljoin
 import random
 from threading import current_thread
 from unidecode import unidecode
-import base64
+import argparse
+import os.path as osp, os
 import http.client as hc
 import re
 import json
@@ -24,13 +25,6 @@ jsonDecoder = json.JSONDecoder()
 
 def thread_id():
     return current_thread().getName()
-
-alt_chars = bytes('_-', 'utf-8')
-def encode_b64(text: str) -> str:
-    return base64.b64encode(bytes(text, 'utf-8'), alt_chars).decode('ascii')
-
-def decode_b64(text: str) -> str:  
-    return base64.b64decode(text.encode('ascii'), alt_chars).decode('utf-8')
 
 
 class Timer:
@@ -107,16 +101,17 @@ class Spider:
 
         with Timer() as t:
             while self.should_crawl():
-                ready_time, target_domain = self.ready_queue.get()
+                try: ready_time, target_domain = self.ready_queue.get(timeout=3)
+                except Empty: continue
                 latency = time.time() - ready_time
                 latency_sum += latency
                 target_queue = self.back_queues[target_domain]
-                target_url = target_queue.get()
-                
+                try: target_url = target_queue.get(timeout=3)
+                except Empty: continue
                 try:
-                    conn = hc.HTTPSConnection(ic(target_domain.split("://")[1][:-1]))
+                    conn = hc.HTTPSConnection(target_domain.split("://")[1][:-1])
                     conn.set_debuglevel(0) #TODO get rid
-                    conn.request("GET", ic(target_url))
+                    conn.request("GET", target_url)
                     resp = conn.getresponse()
                     fetched_at = time.time()
                     if resp.status != 200: raise ConnectionError('received non-200 code')
@@ -137,7 +132,7 @@ class Spider:
     def _initialize_crawl(self, seeds: set[str], k_weights: tuple[int], url_priority: Callable[[str], int]) -> None:
         self.front_queues = [Queue() for _ in range(len(k_weights))]
         for seed in seeds:
-            self.collected.add(seed)
+            self._mark_collected(seed)
             domain = Spider.get_domain(seed)
             self._add_to_frontier(seed, url_priority(seed))
             if domain not in self.back_queues: self._initialize_new_domain(domain, Queue())
@@ -195,7 +190,7 @@ class Spider:
 
     def _queue_new_urls(self, urls, url_priority):
         for new_url in urls - self.collected:
-            self.collected.add(new_url)
+            self._mark_collected(new_url)
             if Spider.get_domain(new_url) in self.back_queues:
                 self._add_to_frontier(new_url, url_priority(new_url))
 
@@ -264,6 +259,8 @@ class Spider:
         content = Spider.scrapeTweet(soup)
         return content, urls
 
+    def _mark_collected(self, url: str) -> None:
+        self.collected.add(url if not url.endswith('/') else url[:-1])
 
     def _reset(self) -> None:
         self.collected.clear()
@@ -281,13 +278,36 @@ class Spider:
         return '{uri.scheme}://{uri.netloc}/'.format(uri=urlparse(url))
 
 
-def cb(target_url, content, latency):
-    with open("crawlData/output2.csv", "a", encoding="utf-8") as outFile:
-        csv_writer = csv.writer(outFile, quoting=csv.QUOTE_ALL)
-        for tweet in content:
-            csv_writer.writerow(tweet)
+def make_argparser() -> argparse.ArgumentParser:
+    argparser = argparse.ArgumentParser(description='run web crawler on Twitter')
+    argparser.add_argument('param', help = 'twitter query')
+    argparser.add_argument('output_dir', help = 'where to dump data')
+    return argparser
+
 
 if __name__ == '__main__':
-    spider = Spider()
-    seeds = {'https://twitter.com/search?q=hello'}
-    spider.crawl(seeds, cb)
+    argparser = make_argparser()
+    args = argparser.parse_args()
+    param: str = args.param
+    output_dir = args.output_dir
+    target_content_path = osp.join(output_dir, 'content.csv')
+    target_url_repo_path = osp.join(output_dir, 'url_repo.txt')
+
+    with (open(target_content_path, "a", encoding="utf-8") as content_f,
+            open(target_url_repo_path, 'a') as url_repo_f,
+            Timer() as t):
+        # TODO add column headers, but need to check if file is new or appending
+        content_csv_writer = csv.writer(content_f, quoting=csv.QUOTE_ALL)
+
+        def on_content(url: str, content: list[str], latency: float) -> None:
+            for tweet in content:
+                content_csv_writer.writerow(tweet)
+            url_repo_f.write(f'{url}\n')
+            url_repo_f.flush()
+            print(f'{round(time.time() - float(t), 2)}: with l={round(latency, 5)}, {thread_id().replace("Thread", "T")} got "{url}"')
+        
+        # TODO read and pass url_repo to spider
+        spider = Spider()
+        param = 'soccer'
+        seeds = {f'https://twitter.com/search?q={param}'}
+        spider.crawl(seeds, on_content)

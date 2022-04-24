@@ -12,7 +12,7 @@ from functools import wraps
 
 from typing import Callable, Any
 
-from main import search
+from main import Search, relevant_user_tweets, search
 
 
 DIR_PATH = osp.dirname(osp.realpath(__file__))
@@ -34,12 +34,20 @@ def register_endpoint(endpoint: str, request_type: str = 'GET') -> Callable:
 def home():
     return render_template('index.html')
 
+@register_endpoint("/updated_query", "post")
+def updated_query():
+    content = request.json
+    query: str = content['query']
+    relevant_tweets = content["relevant_tweets"]
+    query_vector, cosSim = Search(query)
+    results: list = relevant_user_tweets(relevant_tweets, query_vector)
+    return {'ranked_results': ic(results)}
+
 
 @register_endpoint('/query', 'post')
 def query():
     content = request.json
     query: str = content['query']
-    # relevant_doc_ids: list[str] = content['relevant_doc_ids']
     relevant_doc_ids = None
-    results: list = search(query, relevant_doc_ids)  # return a ranked list of {doc_id, rank, relevant uris}
+    results: list = search(query, relevant_doc_ids) 
     return {'ranked_results': ic(results)}

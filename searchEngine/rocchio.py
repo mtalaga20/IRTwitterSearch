@@ -10,11 +10,9 @@ def rocchio(query_vector, tweet_ids):
     beta = 0.5
     vs = pd.read_pickle(r'outputs/VStest.pkl')
     df = pd.read_csv("crawlData/output.csv")
-    print(tweet_ids)
     summation = np.zeros(len(query_vector))
     for i in range(len(tweet_ids)):
-        index = df.index[df['tweet_path']==tweet_ids[i][1]].values
-        print(index)
+        index = df.index[df['tweet_path']==tweet_ids[i]].values
         tweet_vector = vs[index[0]]
         summation += np.array(tweet_vector)
 

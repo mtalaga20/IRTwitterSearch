@@ -55,6 +55,21 @@ def Search(query):
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]
     return queryVector, cosSimDictionary
 
+def Vector_Search(query_v):
+    #Dynamic tasks
+    vs = pd.read_pickle(r'outputs/VStest.pkl')
+
+    # Calculate cosine similarities and store in dictionary
+    cosSimDictionary = {}
+    for i in range(len(vs)):
+        vector = vs[i]
+        cosSimDictionary[i] = cosineSimilarity(vector, query_v)
+    cosSimDictionary = Counter(cosSimDictionary)
+    k_tweets = 10  # number of relevant tweets to return
+    cosSimDictionary = cosSimDictionary.most_common(k_tweets)
+    cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]
+    return query_v, cosSimDictionary
+
 def compile_tweet_list(relevant_tweets):
     data_dir = "crawlData"
     df = pd.read_csv(f"{data_dir}/output.csv")
@@ -67,8 +82,8 @@ def compile_tweet_list(relevant_tweets):
 
 def relevant_user_tweets(relevant_tweets, original_query):
     """Returns new tweets based on relevant tweets provided by the user"""
-    updated_query = rocchio(original_query, relevant_tweets)
-    query_v, top_n_tweets = Search(updated_query)
+    updated_query_v = rocchio(original_query, relevant_tweets)
+    query_v, top_n_tweets = Vector_Search(updated_query_v)
     list = compile_tweet_list(top_n_tweets)
     return list
 

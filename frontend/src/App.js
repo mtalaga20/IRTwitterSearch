@@ -5,6 +5,7 @@ import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid } from "@mui/x-data-grid";
 
 const API_URL = "http://localhost:8000/query"
+const UPDATE_API_URL = "http://localhost:8000/updated_query"
 
 const MapAPI_Data = ([rank, link]) => {
   // Used for mapping what we get from the API to how we display it
@@ -17,6 +18,32 @@ const MapAPI_Data = ([rank, link]) => {
 
 const DisplayResults = (props) => {
   const tweets = props.tweets
+
+  const state = {
+    selectedTweets: []
+  }
+
+  const CallAPI = async (queryText, relevant_docs) => {
+    let out = { query: queryText, relevant_tweets: relevant_docs }
+
+    return fetch(UPDATE_API_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      cors: "no-cors",
+      body: JSON.stringify(out)
+    }).then(res => res.json())
+  }
+
+  const updateQuery = async () => {
+    console.log(state.selectedTweets.map((obj) => obj.link));
+    const res = await CallAPI(props.original_query, state.selectedTweets.map((obj) => obj.link))
+    if (res) {
+      props.modifyResults(res["ranked_results"].map(MapAPI_Data));
+    }
+    // TODO: Fix forward ref update here
+  }
 
   // Grid column definition
   const columns = [
@@ -49,7 +76,7 @@ const DisplayResults = (props) => {
         >
           Home
         </Button>
-        <Button style={{ width: "20%", margin: "0.5% 0 0.5% 40%", border: "0.5px solid #088cb1" }} id="re-query">
+        <Button style={{ width: "20%", margin: "0.5% 0 0.5% 40%", border: "0.5px solid #088cb1" }} id="re-query" onClick={updateQuery}>
           Update Query
         </Button>
       </div>
@@ -60,6 +87,10 @@ const DisplayResults = (props) => {
         checkboxSelection
         getRowId={row => {
           return row.rank;
+        }}
+        onSelectionModelChange={(ids) => {
+          const selectedIDs = new Set(ids);
+          state.selectedTweets = tweets.filter((row) => selectedIDs.has(row.rank));
         }}
       />
     </>
@@ -135,6 +166,7 @@ export const App = () => {
         : <DisplayResults
           modifyResults={(up) => setResults(up)}
           modifyQuery={(up) => setQuery(up)}
+          original_query={query}
           tweets={results} />
       }
     </Paper>

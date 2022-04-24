@@ -36,7 +36,7 @@ def tokenize(df):
     """
 
     #Remove punctuation
-    df["tweet"] = df["tweet"].str.replace("[^a-zA-Z0–9 ]", "")
+    df["tweet"] = df["tweet"].astype(str).str.replace("[^a-zA-Z0–9 ]", "")
     #Tokenize
     df["tweet"] = df["tweet"].apply(lambda x: x.lower().split(" "))
     #Stopwords

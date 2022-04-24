@@ -2,19 +2,20 @@
 
 """
 
+from lib2to3.pgen2.tokenize import TokenError
 import sys; sys.path.append('.')
 import os.path as osp, os
 import pickle
-from searchEngine.rocchio import rocchio
-from searchEngine.tokenizer import tokenize, tokenize_query
-from searchEngine.invertedIndexer import invertedIndex
-from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorSpace
+from rocchio import rocchio
+from tokenizer import tokenize, tokenize_query
+from invertedIndexer import invertedIndex
+from vectorSpace import cosineSimilarity, createQueryVector, vectorSpace
 import argparse
 import pandas as pd
 from collections import Counter
 from icecream import ic
 
-from searchEngine.proximity import make_proximity_score_vector
+from proximity import make_proximity_score_vector
 
 
 def cmd_line_args() -> argparse.Namespace:
@@ -23,29 +24,26 @@ def cmd_line_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def create_Index():
-    #Selecting specific columns from pulled data
-    #For loading csv:
-    data_dir = "crawlData"
-    df = pd.read_csv(f"{data_dir}/output.csv")
+    data_dir = osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data')
+    df = pd.read_csv(f"{data_dir}/crawlData/original_content.csv")
     df.reset_index(drop=True)
-    df.to_csv(f"{data_dir}/output.csv") 
+    df.to_csv(f"{data_dir}/crawlData/original_content.csv")
 
     tokenize(df)
     tweet_count = len(df.index)
     collection, term_count = invertedIndex(df["tweet"], tweet_count)
-    output = open('outputs/IItest.pkl', 'wb')
+    output = open(f'{data_dir}/indexes/IItest.pkl', 'wb')
     pickle.dump(collection, output)
     output.close()
     vs = vectorSpace(collection, term_count, tweet_count)
-    output = open('outputs/VStest.pkl', 'wb')
+    output = open(f'{data_dir}/indexes/VStest.pkl', 'wb')
     pickle.dump(vs, output)
     output.close()
 
-def Search(query):
+def Search(query, collection, vs):
     # computes cosine similarities
     #Dynamic tasks
-    collection = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'IItest.pkl')))  # TODO only read in pickle once
-    vs = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'VStest.pkl')))  # TODO only read in pickle once
+    
     # Tokenize query
     queryTokenList = tokenize_query(query)
 
@@ -58,18 +56,27 @@ def Search(query):
     for i in range(len(vs)):
         vector = vs[i]
         cosSimDictionary[i] = cosineSimilarity(vector, queryVector)
-    ic(cosSimDictionary)
     cosSimDictionary = Counter(cosSimDictionary)
     k_tweets = 10 #number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]  # TODO find candidate docs before computing cosine sim
-    proximity_vector = make_proximity_score_vector(collection, sorted(queryTokenList), cosSimDictionary)
-    ic(proximity_vector)
-    return queryVector, cosSimDictionary
+    candidates = [tuple[0] for tuple in cosSimDictionary]
+    filtered_queryterms = sorted(queryTokenList)
+    filtered_queryterms = [word for word in filtered_queryterms if word in collection] #Remove word if they never appear in collection
+    proximity_vector = make_proximity_score_vector(collection, filtered_queryterms, candidates)
 
-def Vector_Search(query_v):
+    #Add promiximity to cos-sim scores
+    relevant_tweets = []
+    cos_weight, proxim_weight = 1.0, 0.2
+    for i in range(len(cosSimDictionary)):
+        relevant_tweets.append((cosSimDictionary[i][0], ((cosSimDictionary[i][1] * cos_weight) + (proximity_vector[i] * proxim_weight))))
+
+    return queryVector,relevant_tweets
+
+def Vector_Search(query_v, collection, queryTokenList):
     #Dynamic tasks
-    vs = pd.read_pickle(r'outputs/VStest.pkl')  # TODO only read in pickle once
+    data_dir = osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data')
+    vs = pd.read_pickle(f'{data_dir}/indexes/VStest.pkl')  # TODO only read in pickle once
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = {}
@@ -79,12 +86,21 @@ def Vector_Search(query_v):
     cosSimDictionary = Counter(cosSimDictionary)
     k_tweets = 10  # number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
-    cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]
-    return query_v, cosSimDictionary
+    cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]  # TODO find candidate docs before computing cosine sim
+    candidates = [tuple[0] for tuple in cosSimDictionary]
+    filtered_queryterms = sorted(queryTokenList)
+    filtered_queryterms = [word for word in filtered_queryterms if word in collection] #Remove word if they never appear in collection
+    proximity_vector = make_proximity_score_vector(collection, filtered_queryterms, candidates)
 
-def compile_tweet_list(relevant_tweets):
-    data_dir = "crawlData"
-    df = pd.read_csv(f"{data_dir}/output.csv")
+    #Add promiximity to cos-sim scores
+    relevant_tweets = []
+    cos_weight, proxim_weight = 1.0, 0.2
+    for i in range(len(cosSimDictionary)):
+        relevant_tweets.append((cosSimDictionary[i][0], ((cosSimDictionary[i][1] * cos_weight) + (proximity_vector[i] * proxim_weight))))
+
+    return relevant_tweets
+
+def compile_tweet_list(relevant_tweets, df):
     tweet_list = []
     for i in range(len(relevant_tweets)):
         rank = i+1
@@ -93,17 +109,29 @@ def compile_tweet_list(relevant_tweets):
         tweet_list.append((rank, uri, tweet))
     return tweet_list
 
-def relevant_user_tweets(relevant_tweets: list[str], original_query):
+def relevant_user_tweets(relevant_tweets: list[str], original_query: list[float], original_query_str: list[str]):
     """Returns new tweets based on relevant tweets provided by the user"""
-    updated_query_v = rocchio(original_query, relevant_tweets)
-    query_v, top_n_tweets = Vector_Search(updated_query_v)
+    df, index, vs = load_data()
+    updated_query_v = rocchio(original_query, relevant_tweets, df, vs)
+    top_n_tweets = Vector_Search(updated_query_v, index, tokenize(original_query_str)) #TODO Gather original query token
     list = compile_tweet_list(top_n_tweets)
     return list
 
 def search(query: str, relevant_doc_ids) -> int:
     create_Index()
-    query_v, top_n_tweets = Search(query)
-    list = compile_tweet_list(top_n_tweets)
+    #For loading csv:
+    df, index, vs = load_data()
+    query_v, top_n_tweets = Search(query, index, vs)
+    list = compile_tweet_list(top_n_tweets, df)
     return list
 
-Search('understand me soon')
+def load_data():
+    data_dir = osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data')
+    df = pd.read_csv(f"{data_dir}/crawlData/original_content.csv")
+    df.reset_index(drop=True)
+    df.to_csv(f"{data_dir}/crawlData/original_content.csv")
+    index = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'IItest.pkl')))  # TODO only read in pickle once
+    vs = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'VStest.pkl')))  # TODO only read in pickle once
+    return df, index, vs
+
+search('hello spotted eagle magic internet money', 2)

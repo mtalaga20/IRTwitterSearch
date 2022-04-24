@@ -21,8 +21,8 @@ def find_nearest(container: list[int], target: int) -> int:
 
 
 def get_indices(index, token: str, target_doc_id: str) -> list[str]:
-    ic(index[token])
-    input()
+    #ic(index[token])
+    #input()
     for doc_id, _, indices in index[token][1]:
         if doc_id == target_doc_id:
             return indices
@@ -37,8 +37,8 @@ def make_proximity_score_vector(
     if len(sorted_query_tokens) == 1: return vector
     # TODO try to compute qt_count without going thru loops
     for i, doc_id in enumerate(candidate_doc_ids):
-        total_dist = 0
-        comparisons = 0
+        total_dist = 1
+        comparisons = 1
         qt_count = 0
         evaluated = set()
         for qt in sorted_query_tokens:

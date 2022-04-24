@@ -1,0 +1,26 @@
+DESIGN/ IMPLEMENT
+* connect front end to backend/ check search engine interface
+* update the crawler
+* add URL repository to disk (url, time crawled)
+* evaluate term proximity scoring
+* check code to see if we loop through all dimensions
+* evaluation (show that adding RF and term proximity increase performance)
+* add negative RF
+* modify position information to work w/ stop list
+* term highlighting
+* update README
+
+* evaluate the indexing structure for size performance
+* semantic scoring
+* update requirements.txt
+
+DEPLOYMENT
+* nginx w/ reverse proxy, nginx static w\ gunicorn for api
+* docker?
+
+
+OTHER
+* run the crawler to get more tweets (few thousand)
+
+PRESENTATION
+* slide show

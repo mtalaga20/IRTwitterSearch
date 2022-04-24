@@ -1,3 +1,9 @@
+"""
+
+"""
+
+import sys; sys.path.append('.')
+import os.path as osp, os
 import pickle
 from searchEngine.rocchio import rocchio
 from searchEngine.tokenizer import tokenize, tokenize_query
@@ -6,6 +12,9 @@ from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vector
 import argparse
 import pandas as pd
 from collections import Counter
+from icecream import ic
+
+from searchEngine.proximity import make_proximity_score_vector
 
 
 def cmd_line_args() -> argparse.Namespace:
@@ -33,10 +42,10 @@ def create_Index():
     output.close()
 
 def Search(query):
-
+    # computes cosine similarities
     #Dynamic tasks
-    collection = pd.read_pickle(r'outputs/IItest.pkl')
-    vs = pd.read_pickle(r'outputs/VStest.pkl')
+    collection = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'IItest.pkl')))  # TODO only read in pickle once
+    vs = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'VStest.pkl')))  # TODO only read in pickle once
     # Tokenize query
     queryTokenList = tokenize_query(query)
 
@@ -45,19 +54,22 @@ def Search(query):
     queryVector = createQueryVector(queryTokenList, collection, term_count)
 
     # Calculate cosine similarities and store in dictionary
-    cosSimDictionary = { }
+    cosSimDictionary = {}
     for i in range(len(vs)):
         vector = vs[i]
         cosSimDictionary[i] = cosineSimilarity(vector, queryVector)
+    ic(cosSimDictionary)
     cosSimDictionary = Counter(cosSimDictionary)
     k_tweets = 10 #number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
-    cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]
+    cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]  # TODO find candidate docs before computing cosine sim
+    proximity_vector = make_proximity_score_vector(collection, sorted(queryTokenList), cosSimDictionary)
+    ic(proximity_vector)
     return queryVector, cosSimDictionary
 
 def Vector_Search(query_v):
     #Dynamic tasks
-    vs = pd.read_pickle(r'outputs/VStest.pkl')
+    vs = pd.read_pickle(r'outputs/VStest.pkl')  # TODO only read in pickle once
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = {}
@@ -81,7 +93,7 @@ def compile_tweet_list(relevant_tweets):
         tweet_list.append((rank, uri, tweet))
     return tweet_list
 
-def relevant_user_tweets(relevant_tweets, original_query):
+def relevant_user_tweets(relevant_tweets: list[str], original_query):
     """Returns new tweets based on relevant tweets provided by the user"""
     updated_query_v = rocchio(original_query, relevant_tweets)
     query_v, top_n_tweets = Vector_Search(updated_query_v)
@@ -93,3 +105,5 @@ def search(query: str, relevant_doc_ids) -> int:
     query_v, top_n_tweets = Search(query)
     list = compile_tweet_list(top_n_tweets)
     return list
+
+Search('understand me soon')

@@ -1,6 +1,6 @@
 # PROJECT
 ## Front end
-* matched token highlighting in front end
+* ~~matched token highlighting in front end~~
 * show percent match (maybe we already have this?)
 
 ## Crawling

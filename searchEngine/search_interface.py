@@ -25,9 +25,9 @@ def cmd_line_args() -> argparse.Namespace:
 
 def create_Index():
     data_dir = osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data')
-    df = pd.read_csv(f"{data_dir}/crawlData/original_content.csv")
-    df.reset_index(drop=True)
-    df.to_csv(f"{data_dir}/crawlData/original_content.csv")
+    df = pd.read_csv(f"{data_dir}/crawlData/content.csv")
+    df.drop_duplicates(subset=["tweet_path"], inplace=True, keep="first", ignore_index=True)
+    df.to_csv(f"{data_dir}/crawlData/content.csv")
 
     tokenize(df)
     tweet_count = len(df.index)
@@ -133,5 +133,3 @@ def load_data():
     index = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'IItest.pkl')))  # TODO only read in pickle once
     vs = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'VStest.pkl')))  # TODO only read in pickle once
     return df, index, vs
-
-search('hello spotted eagle magic internet money', 2)

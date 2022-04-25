@@ -45,13 +45,13 @@ class Timer:
 
 
 class Spider:
-    def __init__(self):
+    def __init__(self, collected = set()):
         # timing/ sync
         self.interrupt = Event()
         self.frontier_cv = Condition()
 
         # collection
-        self.collected: set[str] = set()
+        self.collected: set[str] = collected
         self.front_queues: list[Queue[str]] = []  # a front queue for each priority level
         self.back_queues: dict[str, Queue[str]] = {}  # will have back queue for each domain
         self.ready_queue: Queue[str] = Queue()  # lowest = highest priority, iterates thru item to handle ties
@@ -133,7 +133,6 @@ class Spider:
         for seed in seeds:
             self._mark_collected(seed)
             domain = Spider.get_domain(seed)
-            self._add_to_frontier(seed, url_priority(seed))
             if domain not in self.back_queues: self._initialize_new_domain(domain, Queue())
             self.back_queues[domain].put(seed)
         self.num_threads = min(ceil(len(self.back_queues) / 2), 64)  # per mercator reccomendations
@@ -292,14 +291,31 @@ if __name__ == '__main__':
     output_dir = args.output_dir
     target_content_path = osp.join(output_dir, 'content.csv')
     target_url_repo_path = osp.join(output_dir, 'url_repo.txt')
+    target_url_crawlTime_path = osp.join(output_dir, "url_crawl_time.txt")
+    target_url_frontier_path = osp.join(output_dir, "url_frontier.txt")
+
+    urlRepoSet = set()
+    urlFrontierSet = set()
 
     if not os.path.exists(target_content_path):
         # need to add column headers if it did not previously exist
         with open(target_content_path, "a", encoding="utf-8") as out:
-            out.write("id, username, nickname, tweet_path, tweet\n")
+            out.write("id,username,nickname,tweet_path,tweet\n")
+    
+    if os.path.exists(target_url_repo_path):
+        # We have an active repo, so work from it
+        with open(target_url_repo_path, "r") as repo_in:
+            urlRepoSet.update(repo_in.readlines())
+
+    if os.path.exists(target_url_frontier_path):
+        # We have an old frontier, so work on it
+        with open(target_url_frontier_path, "r") as frontier:
+            urlFrontierSet.update(frontier.readlines())
 
     with (open(target_content_path, "a", encoding="utf-8") as content_f,
             open(target_url_repo_path, 'a') as url_repo_f,
+            open(target_url_crawlTime_path, "a") as url_crawl_time_f,
+            open(target_url_frontier_path, "a") as url_frontier_f,
             Timer() as t):
         content_csv_writer = csv.writer(content_f, quoting=csv.QUOTE_ALL)
 
@@ -308,9 +324,15 @@ if __name__ == '__main__':
                 content_csv_writer.writerow(tweet)
             url_repo_f.write(f'{url}\n')
             url_repo_f.flush()
+            url_crawl_time_f.write(f"{url}, {time.time()}\n")
+            url_crawl_time_f.flush()
             print(f'{round(time.time() - float(t), 2)}: with l={round(latency, 5)}, {thread_id().replace("Thread", "T")} got "{url}"')
-        
-        # TODO read and pass url_repo to spider
-        spider = Spider()
-        seeds = {f'https://twitter.com/search?q={param}'}
+
+        # TODO: Find a way to write out to the urlFrontierSet so it isnt useless
+        spider = Spider(collected=urlRepoSet)
+        seeds = urlFrontierSet if urlFrontierSet != set(
+        ) else ({f'https://twitter.com/search?q={param}'} if param != None else None)
+        if seeds == None:
+            print("Error: Empty frontier and starting param not specified")
+            exit(-1)
         spider.crawl(seeds, on_content)

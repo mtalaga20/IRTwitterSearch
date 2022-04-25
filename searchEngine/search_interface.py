@@ -2,14 +2,13 @@
 
 """
 
-from lib2to3.pgen2.tokenize import TokenError
 import sys
-from searchEngine.invertedIndexer import invertedIndex
-from searchEngine.proximity import make_proximity_score_vector
+from invertedIndexer import invertedIndex
+from proximity import make_proximity_score_vector
 
-from searchEngine.rocchio import rocchio
-from searchEngine.tokenizer import tokenize, tokenize_query
-from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorSpace; sys.path.append('.')
+from rocchio import rocchio
+from tokenizer import tokenize, tokenize_query
+from vectorSpace import cosineSimilarity, createQueryVector, vectorSpace; sys.path.append('.')
 import os.path as osp, os
 import pickle
 import argparse
@@ -17,10 +16,10 @@ import pandas as pd
 from collections import Counter
 from icecream import ic
 
-from proximity import make_proximity_score_vector
-
 DATA_DIR = osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data'))
-CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'original_content.csv')
+CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content.csv')
+II_PATH = osp.join(DATA_DIR, "indexes", "IItest.pkl")
+VS_PATH = osp.join(DATA_DIR, "indexes", "VStest.pkl")
 
 def cmd_line_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='IR Twitter Search')
@@ -35,11 +34,11 @@ def create_Index():
     tokenize(df)
     tweet_count = len(df.index)
     collection, term_count = invertedIndex(df["tweet"], tweet_count)
-    output = open(f'{DATA_DIR}/indexes/IItest.pkl', 'wb')
+    output = open(II_PATH, 'wb')
     pickle.dump(collection, output)
     output.close()
     vs = vectorSpace(collection, term_count, tweet_count)
-    output = open(f'{DATA_DIR}/indexes/VStest.pkl', 'wb')
+    output = open(VS_PATH, 'wb')
     pickle.dump(vs, output)
     output.close()
 
@@ -119,27 +118,16 @@ def relevant_user_tweets(relevant_tweets: list[str], irrelevant_tweets: list[str
     return list
 
 def API_Query(query : str) -> tuple[list[float], list]:
-    # We need a way to ensure the index has been created before this so it does not run every time
-
-    # create_Index()
-    #For loading csv:
     df, index, vs = load_data()
     query_v, top_n_tweets = Search(query, index, vs)
     list = compile_tweet_list(top_n_tweets, df)
     return (query_v, list)
 
-# def search(query: str, relevant_doc_ids) -> int:
-#     create_Index()
-#     #For loading csv:
-#     df, index, vs = load_data()
-#     query_v, top_n_tweets = Search(query, index, vs)
-#     list = compile_tweet_list(top_n_tweets, df)
-#     return list
-
 def load_data():
-    df = pd.read_csv(f"{DATA_DIR}/crawlData/original_content.csv")
-    df.reset_index(drop=True)
-    df.to_csv(f"{DATA_DIR}/crawlData/original_content.csv")
-    index = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'IItest.pkl')))  # TODO only read in pickle once
-    vs = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'VStest.pkl')))  # TODO only read in pickle once
+    # We should only need to read data from here, and 
+    df = pd.read_csv(CONTENT_PATH)
+    index = pd.read_pickle(II_PATH)  # TODO only read in pickle once
+    vs = pd.read_pickle(VS_PATH)  # TODO only read in pickle once
     return df, index, vs
+
+create_Index()

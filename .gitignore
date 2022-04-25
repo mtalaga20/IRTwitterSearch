@@ -2,6 +2,8 @@
 # data/*
 .DS_*
 
+data/indexes/*
+
 # to keep empty dirs
 !.gitkeep
 

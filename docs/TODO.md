@@ -4,7 +4,7 @@
 * show percent match (maybe we already have this?)
 
 ## Crawling
-* fix twitter specific parsing error in crawler (!!!)
+* ~~fix twitter specific parsing error in crawler (!!!)~~
 * add URL repository to disk (url, time crawled)
 
 ## Indexing

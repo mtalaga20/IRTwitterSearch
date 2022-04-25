@@ -133,7 +133,6 @@ class Spider:
         for seed in seeds:
             self._mark_collected(seed)
             domain = Spider.get_domain(seed)
-            self._add_to_frontier(seed, url_priority(seed))
             if domain not in self.back_queues: self._initialize_new_domain(domain, Queue())
             self.back_queues[domain].put(seed)
         self.num_threads = min(ceil(len(self.back_queues) / 2), 64)  # per mercator reccomendations

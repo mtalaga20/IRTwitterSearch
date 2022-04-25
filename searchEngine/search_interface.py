@@ -17,6 +17,8 @@ from icecream import ic
 
 from proximity import make_proximity_score_vector
 
+DATA_DIR = osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data'))
+CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'original_content.csv')
 
 def cmd_line_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description='IR Twitter Search')
@@ -24,19 +26,18 @@ def cmd_line_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def create_Index():
-    data_dir = osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data')
-    df = pd.read_csv(f"{data_dir}/crawlData/original_content.csv")
+    df = pd.read_csv(CONTENT_PATH)
     df.reset_index(drop=True)
-    df.to_csv(f"{data_dir}/crawlData/original_content.csv")
+    df.to_csv(CONTENT_PATH)
 
     tokenize(df)
     tweet_count = len(df.index)
     collection, term_count = invertedIndex(df["tweet"], tweet_count)
-    output = open(f'{data_dir}/indexes/IItest.pkl', 'wb')
+    output = open(f'{DATA_DIR}/indexes/IItest.pkl', 'wb')
     pickle.dump(collection, output)
     output.close()
     vs = vectorSpace(collection, term_count, tweet_count)
-    output = open(f'{data_dir}/indexes/VStest.pkl', 'wb')
+    output = open(f'{DATA_DIR}/indexes/VStest.pkl', 'wb')
     pickle.dump(vs, output)
     output.close()
 
@@ -64,7 +65,6 @@ def Search(query, collection, vs):
     filtered_queryterms = sorted(queryTokenList)
     filtered_queryterms = [word for word in filtered_queryterms if word in collection] #Remove word if they never appear in collection
     proximity_vector = make_proximity_score_vector(collection, filtered_queryterms, candidates)
-
     #Add promiximity to cos-sim scores
     relevant_tweets = []
     cos_weight, proxim_weight = 1.0, 0.2
@@ -75,8 +75,7 @@ def Search(query, collection, vs):
 
 def Vector_Search(query_v, collection, queryTokenList):
     #Dynamic tasks
-    data_dir = osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data')
-    vs = pd.read_pickle(f'{data_dir}/indexes/VStest.pkl')  # TODO only read in pickle once
+    vs = pd.read_pickle(f'{DATA_DIR}/indexes/VStest.pkl')  # TODO only read in pickle once
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = {}
@@ -126,10 +125,9 @@ def search(query: str, relevant_doc_ids) -> int:
     return list
 
 def load_data():
-    data_dir = osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data')
-    df = pd.read_csv(f"{data_dir}/crawlData/original_content.csv")
+    df = pd.read_csv(f"{DATA_DIR}/crawlData/original_content.csv")
     df.reset_index(drop=True)
-    df.to_csv(f"{data_dir}/crawlData/original_content.csv")
+    df.to_csv(f"{DATA_DIR}/crawlData/original_content.csv")
     index = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'IItest.pkl')))  # TODO only read in pickle once
     vs = pd.read_pickle(osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data', 'indexes', 'VStest.pkl')))  # TODO only read in pickle once
     return df, index, vs

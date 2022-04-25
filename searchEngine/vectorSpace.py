@@ -1,3 +1,10 @@
+"""
+
+"""
+
+from icecream import ic
+
+
 def vectorSpace(invertedIndex, term_count, doc_count):
     """
     Vector space function to create weights for each term in respect to each document.

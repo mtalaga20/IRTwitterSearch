@@ -110,7 +110,6 @@ class Spider:
                 except Empty: continue
                 try:
                     conn = hc.HTTPSConnection(target_domain.split("://")[1][:-1])
-                    conn.set_debuglevel(0) #TODO get rid
                     conn.request("GET", target_url)
                     resp = conn.getresponse()
                     fetched_at = time.time()
@@ -247,7 +246,8 @@ class Spider:
             userJsonData = jsonDecoder.decode(dataTag["data-reply-to-users-json"])
             
             permaPath = dataTag["data-permalink-path"]
-            tweetText = tweetTag.get_text() #TODO: Make unicode fun
+            # Replaces all whitespace with just basic space
+            tweetText = re.sub(r"\s", " ", tweetTag.get_text()) #TODO: Make unicode fun
             primaryUser = userJsonData[0]
             tweets.append((primaryUser["id_str"], primaryUser["screen_name"], primaryUser["name"], permaPath, tweetText))
         return tweets
@@ -293,10 +293,14 @@ if __name__ == '__main__':
     target_content_path = osp.join(output_dir, 'content.csv')
     target_url_repo_path = osp.join(output_dir, 'url_repo.txt')
 
+    if not os.path.exists(target_content_path):
+        # need to add column headers if it did not previously exist
+        with open(target_content_path, "a", encoding="utf-8") as out:
+            out.write("id, username, nickname, tweet_path, tweet\n")
+
     with (open(target_content_path, "a", encoding="utf-8") as content_f,
             open(target_url_repo_path, 'a') as url_repo_f,
             Timer() as t):
-        # TODO add column headers, but need to check if file is new or appending
         content_csv_writer = csv.writer(content_f, quoting=csv.QUOTE_ALL)
 
         def on_content(url: str, content: list[str], latency: float) -> None:
@@ -308,6 +312,5 @@ if __name__ == '__main__':
         
         # TODO read and pass url_repo to spider
         spider = Spider()
-        param = 'soccer'
         seeds = {f'https://twitter.com/search?q={param}'}
         spider.crawl(seeds, on_content)

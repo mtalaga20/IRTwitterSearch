@@ -47,11 +47,12 @@ const DisplayResults = (props) => {
   const [modalText, setModalText] = useState();
 
   const state = {
-    selectedTweets: []
+    selectedTweets: [],
+    unSelectedTweets: []
   }
 
-  const CallAPI = async (queryText, relevant_docs) => {
-    let out = { query: queryText, relevant_tweets: relevant_docs }
+  const CallAPI = async (queryText, relevant_docs, irrelevant_docs) => {
+    let out = { query: queryText, relevant_tweets: relevant_docs, irrelevant_tweets: irrelevant_docs }
 
     return fetch(UPDATE_API_URL, {
       method: 'POST',
@@ -65,7 +66,7 @@ const DisplayResults = (props) => {
 
   const updateQuery = async () => {
     console.log(state.selectedTweets.map((obj) => obj.link));
-    const res = await CallAPI(props.original_query, state.selectedTweets.map((obj) => obj.link))
+    const res = await CallAPI(props.original_query, state.selectedTweets.map((obj) => obj.link), state.unSelectedTweets.map((obj) => obj.link))
     if (res) {
       props.modifyResults(res["ranked_results"].map(MapAPI_Data));
     }
@@ -95,7 +96,8 @@ const DisplayResults = (props) => {
         // Same rough tokenization
         let tweetText = params.value.split(" ")
         return (<p>{
-              tweetText.map((token) => queryList.includes(token.toLowerCase()) ? <b> {token}</b> : ` ${token}`)
+          // Match case and punctation free
+              tweetText.map((token) => queryList.includes(token.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase()) ? <b> {token}</b> : ` ${token}`)
             }</p>)
       }
     } 
@@ -166,6 +168,7 @@ const DisplayResults = (props) => {
         onSelectionModelChange={(ids) => {
           const selectedIDs = new Set(ids);
           state.selectedTweets = tweets.filter((row) => selectedIDs.has(row.rank));
+          state.unSelectedTweets = tweets.filter((row) => !selectedIDs.has(row.rank))
           setSelectionModel(ids);
         }}
       />

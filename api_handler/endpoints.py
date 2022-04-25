@@ -3,7 +3,6 @@
 """
 
 import os.path as osp
-import sys; sys.path.append('.')
 
 from icecream import ic
 
@@ -12,7 +11,11 @@ from functools import wraps
 
 from typing import Callable, Any
 
-from main import Search, relevant_user_tweets, search
+from pathlib import Path
+import sys
+path_root = Path(__file__).parents[1]
+sys.path.append(str(path_root))
+from searchEngine.search_interface import API_Query, relevant_user_tweets
 
 
 DIR_PATH = osp.dirname(osp.realpath(__file__))
@@ -39,15 +42,15 @@ def updated_query():
     content = request.json
     query: str = content['query']
     relevant_tweets = content["relevant_tweets"]
-    query_vector, cosSim = Search(query)
-    results: list = relevant_user_tweets(relevant_tweets, query_vector)
-    return {'ranked_results': ic(results)}
+    irrelevant_tweets = content["irrelevant_tweets"]
+    query_v, _ = API_Query(query)
+    results: list = relevant_user_tweets(relevant_tweets, irrelevant_tweets, query_v, query)
+    return {'ranked_results': results}
 
 
 @register_endpoint('/query', 'post')
 def query():
     content = request.json
     query: str = content['query']
-    relevant_doc_ids = None
-    results: list = search(query, relevant_doc_ids) 
-    return {'ranked_results': ic(results)}
+    _, rel_tweets = API_Query(query)
+    return {'ranked_results': rel_tweets}

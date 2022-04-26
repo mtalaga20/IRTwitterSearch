@@ -8,7 +8,7 @@ from proximity import make_proximity_score_vector
 
 from rocchio import rocchio
 from tokenizer import tokenize, tokenize_query
-from vectorSpace2 import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace; sys.path.append('.')
+from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace; sys.path.append('.')
 import os.path as osp, os
 import pickle
 import argparse

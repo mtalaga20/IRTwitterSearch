@@ -8,7 +8,7 @@ from proximity import make_proximity_score_vector
 
 from rocchio import rocchio
 from tokenizer import tokenize, tokenize_query
-from vectorSpace import cosineSimilarity, createQueryVector, vectorSpace; sys.path.append('.')
+from vectorSpace2 import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace; sys.path.append('.')
 import os.path as osp, os
 import pickle
 import argparse
@@ -28,8 +28,8 @@ def cmd_line_args() -> argparse.Namespace:
 
 def create_Index():
     df = pd.read_csv(CONTENT_PATH)
-    df.drop_duplicates(subset=["tweet_path"], inplace=True, keep="first", ignore_index=True)
-    df.to_csv(CONTENT_PATH)
+    #df.drop_duplicates(subset=["tweet_path"], inplace=True, keep="first", ignore_index=True)
+    #df.to_csv(CONTENT_PATH)
 
     tokenize(df)
     tweet_count = len(df.index)
@@ -51,14 +51,16 @@ def Search(query, collection, vs):
 
     term_count = len(vs[0])
     # Create query vector
-    queryVector = createQueryVector(queryTokenList, collection, term_count)
+    queryVector = createQueryVector(queryTokenList, collection)
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = {}
+    query_magnitude = vectorMagnitude(queryVector)
     for i in range(len(vs)):
         vector = vs[i]
-        cosSimDictionary[i] = cosineSimilarity(vector, queryVector)
+        cosSimDictionary[i] = cosineSimilarity(vector, queryVector, query_magnitude)
     cosSimDictionary = Counter(cosSimDictionary)
+    
     k_tweets = 10 #number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]  # TODO find candidate docs before computing cosine sim
@@ -72,6 +74,7 @@ def Search(query, collection, vs):
     for i in range(len(cosSimDictionary)):
         relevant_tweets.append((cosSimDictionary[i][0], ((cosSimDictionary[i][1] * cos_weight) + (proximity_vector[i] * proxim_weight))))
 
+    #ic(queryVector, relevant_tweets)
     return queryVector,relevant_tweets
 
 def Vector_Search(query_v, collection, queryTokenList):
@@ -80,9 +83,10 @@ def Vector_Search(query_v, collection, queryTokenList):
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = {}
+    query_magnitude = vectorMagnitude(query_v)
     for i in range(len(vs)):
         vector = vs[i]
-        cosSimDictionary[i] = cosineSimilarity(vector, query_v)
+        cosSimDictionary[i] = cosineSimilarity(vector, query_v, query_magnitude)
     cosSimDictionary = Counter(cosSimDictionary)
     k_tweets = 10  # number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
@@ -130,4 +134,4 @@ def load_data():
     vs = pd.read_pickle(VS_PATH)  # TODO only read in pickle once
     return df, index, vs
 
-create_Index()
+#create_Index()

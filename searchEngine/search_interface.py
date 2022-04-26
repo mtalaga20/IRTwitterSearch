@@ -60,7 +60,7 @@ def Search(query, collection, vs):
         vector = vs[i]
         cosSimDictionary[i] = cosineSimilarity(vector, queryVector, query_magnitude)
     cosSimDictionary = Counter(cosSimDictionary)
-    #ic(cosSimDictionary)
+    
     k_tweets = 10 #number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]  # TODO find candidate docs before computing cosine sim
@@ -83,9 +83,10 @@ def Vector_Search(query_v, collection, queryTokenList):
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = {}
+    query_magnitude = vectorMagnitude(query_v)
     for i in range(len(vs)):
         vector = vs[i]
-        cosSimDictionary[i] = cosineSimilarity(vector, query_v)
+        cosSimDictionary[i] = cosineSimilarity(vector, query_v, query_magnitude)
     cosSimDictionary = Counter(cosSimDictionary)
     k_tweets = 10  # number of relevant tweets to return
     cosSimDictionary = cosSimDictionary.most_common(k_tweets)
@@ -124,7 +125,6 @@ def API_Query(query : str) -> tuple[list[float], list]:
     df, index, vs = load_data()
     query_v, top_n_tweets = Search(query, index, vs)
     list = compile_tweet_list(top_n_tweets, df)
-    #ic(list)
     return (query_v, list)
 
 def load_data():
@@ -135,4 +135,3 @@ def load_data():
     return df, index, vs
 
 #create_Index()
-API_Query("underrated actor generation")

@@ -70,9 +70,5 @@ def cosineSimilarity(doc_vector, query_vector, query_magnitude):
             if term_index == doc_vector[j][0]:
                 numerator += doc_vector[j][1] * query_vector[i][1]
             #else continue
-    
-    
-    try:
-        return (numerator / (doc_magnitude * query_magnitude))
-    except ZeroDivisionError:
-        return 0.0
+
+    return (numerator / (doc_magnitude * query_magnitude))

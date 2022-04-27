@@ -18,7 +18,7 @@ def rocchio(query_vector, pos_tweet_ids, neg_tweet_ids, df, vs):
 
     
     for i in range(len(neg_tweet_ids)):
-        index = df.index[df['tweet_path']==pos_tweet_ids[i]].values
+        index = df.index[df['tweet_path']==neg_tweet_ids[i]].values
         tweet_vector = vs[index[0]]
         for tuple in tweet_vector:
             query_vector.append((tuple[0], tuple[1] * c))

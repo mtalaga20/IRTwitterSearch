@@ -45,11 +45,10 @@ const DisplayResults = (props) => {
 
   const [title, setTitle] = useState();
   const [modalText, setModalText] = useState();
-
-  const state = {
+  const [selectedState, setSelectedState] = useState({
     selectedTweets: [],
     unSelectedTweets: []
-  }
+  })
 
   const CallAPI = async (queryText, relevant_docs, irrelevant_docs) => {
     let out = { query: queryText, relevant_tweets: relevant_docs, irrelevant_tweets: irrelevant_docs }
@@ -65,8 +64,7 @@ const DisplayResults = (props) => {
   }
 
   const updateQuery = async () => {
-    console.log(state.selectedTweets.map((obj) => obj.link));
-    const res = await CallAPI(props.original_query, state.selectedTweets.map((obj) => obj.link), state.unSelectedTweets.map((obj) => obj.link))
+    const res = await CallAPI(props.original_query, selectedState.selectedTweets.map((obj) => obj.link), selectedState.unSelectedTweets.map((obj) => obj.link))
     if (res) {
       props.modifyResults(res["ranked_results"].map(MapAPI_Data));
     }
@@ -167,8 +165,10 @@ const DisplayResults = (props) => {
         }}
         onSelectionModelChange={(ids) => {
           const selectedIDs = new Set(ids);
-          state.selectedTweets = tweets.filter((row) => selectedIDs.has(row.rank));
-          state.unSelectedTweets = tweets.filter((row) => !selectedIDs.has(row.rank))
+          const localState = {}
+          localState.selectedTweets = tweets.filter((row) => selectedIDs.has(row.rank));
+          localState.unSelectedTweets = tweets.filter((row) => !selectedIDs.has(row.rank))
+          setSelectedState(localState)
           setSelectionModel(ids);
         }}
       />

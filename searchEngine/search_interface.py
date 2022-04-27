@@ -3,12 +3,23 @@
 """
 
 import sys
-from invertedIndexer import invertedIndex
-from proximity import make_proximity_score_vector
+# TODO - Need to fix error causes different import methods required for running API and running normally
+from searchEngine.invertedIndexer import invertedIndex
+from searchEngine.proximity import make_proximity_score_vector
 
-from rocchio import rocchio
-from tokenizer import tokenize, tokenize_query
-from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace; sys.path.append('.')
+from searchEngine.rocchio import rocchio
+from searchEngine.tokenizer import tokenize, tokenize_query
+from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
+sys.path.append('.')
+# # -----------------------------------------------------
+# from invertedIndexer import invertedIndex
+# from proximity import make_proximity_score_vector
+
+# from rocchio import rocchio
+# from tokenizer import tokenize, tokenize_query
+# from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
+# sys.path.append('.')
+# # -----------------------------------------------------
 import os.path as osp, os
 import pickle
 import argparse
@@ -58,6 +69,8 @@ def Search(query, collection, vs):
     query_magnitude = vectorMagnitude(queryVector)
     for i in range(len(vs)):
         vector = vs[i]
+        if (vector == []):
+            print(i)
         cosSimDictionary[i] = cosineSimilarity(vector, queryVector, query_magnitude)
     cosSimDictionary = Counter(cosSimDictionary)
     
@@ -134,4 +147,4 @@ def load_data():
     vs = pd.read_pickle(VS_PATH)  # TODO only read in pickle once
     return df, index, vs
 
-#create_Index()
+create_Index()

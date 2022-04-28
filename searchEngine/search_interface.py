@@ -4,21 +4,21 @@
 
 import sys
 # TODO - Need to fix error causes different import methods required for running API and running normally
-from searchEngine.invertedIndexer import invertedIndex
-from searchEngine.proximity import make_proximity_score_vector
+# from searchEngine.invertedIndexer import invertedIndex
+# from searchEngine.proximity import make_proximity_score_vector
 
-from searchEngine.rocchio import rocchio
-from searchEngine.tokenizer import tokenize, tokenize_query
-from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
-sys.path.append('.')
-# # -----------------------------------------------------
-# from invertedIndexer import invertedIndex
-# from proximity import make_proximity_score_vector
-
-# from rocchio import rocchio
-# from tokenizer import tokenize, tokenize_query
-# from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
+# from searchEngine.rocchio import rocchio
+# from searchEngine.tokenizer import tokenize, tokenize_query
+# from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
 # sys.path.append('.')
+# # -----------------------------------------------------
+from invertedIndexer import invertedIndex
+from proximity import make_proximity_score_vector
+
+from rocchio import rocchio
+from tokenizer import tokenize, tokenize_query
+from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
+sys.path.append('.')
 # # -----------------------------------------------------
 import os.path as osp, os
 import pickle
@@ -27,6 +27,7 @@ import pandas as pd
 from collections import Counter
 from icecream import ic
 
+INDEX_COL = "tweet_path"
 DATA_DIR = osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data'))
 CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content.csv')
 II_PATH = osp.join(DATA_DIR, "indexes", "IItest.pkl")
@@ -38,13 +39,18 @@ def cmd_line_args() -> argparse.Namespace:
     return parser.parse_args()
 
 def create_Index():
-    df = pd.read_csv(CONTENT_PATH)
-    #df.drop_duplicates(subset=["tweet_path"], inplace=True, keep="first", ignore_index=True)
-    #df.to_csv(CONTENT_PATH)
+    df = pd.read_csv(CONTENT_PATH, index_col=INDEX_COL)
 
-    tokenize(df)
-    tweet_count = len(df.index)
-    collection, term_count = invertedIndex(df["tweet"], tweet_count)
+    # Reset the index to default numbering to drop duplicate tweets
+    df.reset_index(inplace=True)
+    df.drop_duplicates(subset=[INDEX_COL], inplace=True, keep="first")
+    df.set_index(INDEX_COL, inplace=True)
+    # Index set back to normal
+    tokenizerDf = tokenize(df)
+    df.to_csv(CONTENT_PATH)
+
+    tweet_count = len(tokenizerDf.index)
+    collection, term_count = invertedIndex(tokenizerDf["tweet"], tweet_count)
     output = open(II_PATH, 'wb')
     pickle.dump(collection, output)
     output.close()
@@ -142,7 +148,7 @@ def API_Query(query : str) -> tuple[list[float], list]:
 
 def load_data():
     # We should only need to read data from here, and 
-    df = pd.read_csv(CONTENT_PATH)
+    df = pd.read_csv(CONTENT_PATH, index_col=INDEX_COL)
     index = pd.read_pickle(II_PATH)  # TODO only read in pickle once
     vs = pd.read_pickle(VS_PATH)  # TODO only read in pickle once
     return df, index, vs

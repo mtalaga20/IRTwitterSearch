@@ -32,17 +32,29 @@ def tokenize(df):
     """
     Tokenizer function to take dataframe columns (tweets), and perform tokenizing, stemming,
     :param df:
-    :return:
+    :return: modified post-tokenize dataframe
     """
+    tDf = df.copy(deep=True)
 
     #Remove punctuation
-    df["tweet"] = df["tweet"].astype(str)
-    df["tweet"] = df["tweet"].apply(lambda x: x.replace("[^a-zA-Z0-9 ]", ""))
+    tDf["tweet"] = tDf["tweet"].astype(str)
+    tDf["tweet"] = tDf["tweet"].apply(lambda x: x.replace("[^a-zA-Z0-9 ]", ""))
     #Tokenize
-    df["tweet"] = df["tweet"].apply(lambda x: x.lower().split(" "))
+    tDf["tweet"] = tDf["tweet"].apply(lambda x: x.lower().split(" "))
     #Stopwords
-    df["tweet"] = df["tweet"].apply(lambda x: [word for word in x if word not in stopwords])
+    tDf["tweet"] = tDf["tweet"].apply(
+        lambda x: [word for word in x if word not in stopwords])
     #Stemmer
-    df["tweet"] = df["tweet"].apply(lambda x: [ps.stem(word) for word in x])
+    tDf["tweet"] = tDf["tweet"].apply(lambda x: [ps.stem(word) for word in x])
     # Remove empty spots
-    df["tweet"] = df["tweet"].apply(lambda x: [word for word in x if word != " " and word != ""])
+    tDf["tweet"] = tDf["tweet"].apply(
+        lambda x: [word for word in x if word != " " and word != ""])
+
+    # Check for empty spots
+    for tweetIndex in tDf.index:
+        if (len(tDf.loc[tweetIndex, "tweet"]) == 0):
+            print("Dropping: ", tweetIndex)
+            # Drop from both the original and the tokenizer df
+            df.drop(index=tweetIndex, inplace=True)
+            tDf = tDf.drop(index=tweetIndex)
+    return tDf

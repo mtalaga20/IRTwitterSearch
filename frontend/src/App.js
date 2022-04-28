@@ -8,6 +8,8 @@ import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
 
+const STEMMER = require("@stdlib/nlp-porter-stemmer")
+
 const API_URL = "http://localhost:8000/query"
 const UPDATE_API_URL = "http://localhost:8000/updated_query"
 
@@ -64,6 +66,8 @@ const DisplayResults = (props) => {
   }
 
   const updateQuery = async () => {
+    // Blast away while pending
+    props.modifyResults([])
     const res = await CallAPI(props.original_query, selectedState.selectedTweets.map((obj) => obj.link), selectedState.unSelectedTweets.map((obj) => obj.link))
     if (res) {
       props.modifyResults(res["ranked_results"].map(MapAPI_Data));
@@ -95,7 +99,9 @@ const DisplayResults = (props) => {
         let tweetText = params.value.split(" ")
         return (<p>{
           // Match case and punctation free
-              tweetText.map((token) => queryList.includes(token.replace(/[^a-zA-Z0-9 ]/g, "").toLowerCase()) ? <b> {token}</b> : ` ${token}`)
+              tweetText.map((token) => {
+                // Must map all query terms to stemmer, then check if any token is a stemmed
+                return queryList.map((v) => STEMMER(v)).includes(STEMMER(token.replace(/[^a-zA-Z0-9 ]/g, "")).toLowerCase()) ? <b> {token}</b> : ` ${token}`})
             }</p>)
       }
     } 

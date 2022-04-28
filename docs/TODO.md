@@ -2,7 +2,7 @@
 ## Front end
 * ~~matched token highlighting in front end~~
 * show percent match (maybe we already have this?)
-* porter-stemmer front end for highlighting
+* ~~porter-stemmer front end for highlighting~~
 
 ## Crawling
 * ~~fix twitter specific parsing error in crawler (!!!)~~

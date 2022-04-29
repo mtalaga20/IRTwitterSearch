@@ -5,23 +5,23 @@
 import sys
 # TODO - Need to fix error causes different import methods required for running API and running normally
 
-from searchEngine.invertedIndexer import invertedIndex
-from searchEngine.proximity import make_proximity_score_vector
+#from searchEngine.invertedIndexer import invertedIndex
+#from searchEngine.proximity import make_proximity_score_vector
 
-from searchEngine.rocchio import rocchio
-from searchEngine.tokenizer import tokenize, tokenize_query
-from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
-sys.path.append('.')
+#from searchEngine.rocchio import rocchio
+#from searchEngine.tokenizer import tokenize, tokenize_query
+#from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
+#sys.path.append('.')
 
 
 # # -----------------------------------------------------
-#from invertedIndexer import invertedIndex
-#from proximity import make_proximity_score_vector
+from invertedIndexer import invertedIndex
+from proximity import make_proximity_score_vector
 
-#from rocchio import rocchio
-#from tokenizer import tokenize, tokenize_query
-#from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
-#sys.path.append('.')
+from rocchio import rocchio
+from tokenizer import tokenize, tokenize_query
+from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace#
+sys.path.append('.')
 # # -----------------------------------------------------
 import os.path as osp, os
 import pickle
@@ -32,7 +32,7 @@ from icecream import ic
 
 INDEX_COL = "tweet_path"
 DATA_DIR = osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data'))
-CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content_rock.csv')
+CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content.csv')
 II_PATH = osp.join(DATA_DIR, "indexes", "IItest.pkl")
 VS_PATH = osp.join(DATA_DIR, "indexes", "VStest.pkl")
 
@@ -159,5 +159,3 @@ def load_data():
     return df, index, vs
 
 #create_Index()
-#df, index, vs = load_data()
-#API_Query("dwayne rock", df, index, vs)

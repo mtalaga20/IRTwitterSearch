@@ -37,8 +37,11 @@ def tokenize(df):
     tDf = df.copy(deep=True)
 
     #Remove punctuation
+    symbols = ["#", "@", "'", ",", ".", '?', "-"]
     tDf["tweet"] = tDf["tweet"].astype(str)
-    tDf["tweet"] = tDf["tweet"].apply(lambda x: x.replace("[^a-zA-Z0-9 ]", ""))
+    #tDf["tweet"] = tDf["tweet"].apply(lambda x: x.replace("[^a-zA-Z0-9 ]", ""))
+    tDf["tweet"] = tDf["tweet"].str.replace('[^\w\s]','')
+    tDf["tweet"] = tDf["tweet"].str.replace('\d+', '')
     #Tokenize
     tDf["tweet"] = tDf["tweet"].apply(lambda x: x.lower().split(" "))
     #Stopwords

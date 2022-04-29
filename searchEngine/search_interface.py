@@ -5,23 +5,23 @@
 import sys
 # TODO - Need to fix error causes different import methods required for running API and running normally
 
-#from searchEngine.invertedIndexer import invertedIndex
-#from searchEngine.proximity import make_proximity_score_vector
+from searchEngine.invertedIndexer import invertedIndex
+from searchEngine.proximity import make_proximity_score_vector
 
-#from searchEngine.rocchio import rocchio
-#from searchEngine.tokenizer import tokenize, tokenize_query
-#from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
-#sys.path.append('.')
+from searchEngine.rocchio import rocchio
+from searchEngine.tokenizer import tokenize, tokenize_query
+from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
+sys.path.append('.')
 
 
 # # -----------------------------------------------------
-from invertedIndexer import invertedIndex
-from proximity import make_proximity_score_vector
+#from invertedIndexer import invertedIndex
+#from proximity import make_proximity_score_vector
 
-from rocchio import rocchio
-from tokenizer import tokenize, tokenize_query
-from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace#
-sys.path.append('.')
+#from rocchio import rocchio
+#from tokenizer import tokenize, tokenize_query
+#from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace#
+#sys.path.append('.')
 # # -----------------------------------------------------
 import os.path as osp, os
 import pickle

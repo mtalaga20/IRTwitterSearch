@@ -45,8 +45,11 @@ def updated_query():
     query: str = content['query']
     relevant_tweets = content["relevant_tweets"]
     irrelevant_tweets = content["irrelevant_tweets"]
+    alpha = content["alpha"]
+    beta = content["beta"]
+    gamma = content["gamma"]
     query_v, _ = API_Query(query, API_DF, API_INDEX, API_VS)
-    results: list = relevant_user_tweets(relevant_tweets, irrelevant_tweets, query_v, query, API_DF, API_INDEX, API_VS)
+    results: list = relevant_user_tweets(relevant_tweets, irrelevant_tweets, query_v, query, API_DF, API_INDEX, API_VS, alpha, beta, gamma)
     return {'ranked_results': results}
 
 

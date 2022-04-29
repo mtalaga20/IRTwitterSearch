@@ -1,12 +1,13 @@
 import './App.css';
 import React, { useEffect, useState } from 'react';
-import { Typography, Paper, Container, TextField, Button, Divider } from "@mui/material";
+import { Accordion, AccordionDetails, AccordionSummary, Typography, Paper, Container, TextField, Button, Divider, Slider } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 import { DataGrid } from "@mui/x-data-grid";
 import Backdrop from '@mui/material/Backdrop';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Fade from '@mui/material/Fade';
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 
 const STEMMER = require("@stdlib/nlp-porter-stemmer")
 
@@ -66,8 +67,20 @@ const DisplayResults = (props) => {
     unSelectedTweets: []
   })
 
+  const [rocchioState, setRocchioState] = useState({
+    alpha: 1,
+    beta: 0.5,
+    gamma: 0.1
+  });
+
+  const [expanded, setExpanded] = React.useState(false);
+
+  const handleChange = (panel) => (event, isExpanded) => {
+    setExpanded(isExpanded ? panel : false);
+  };
+
   const CallAPI = async (queryText, relevant_docs, irrelevant_docs) => {
-    let out = { query: queryText, relevant_tweets: relevant_docs, irrelevant_tweets: irrelevant_docs }
+    let out = { query: queryText, relevant_tweets: relevant_docs, irrelevant_tweets: irrelevant_docs, alpha: rocchioState.alpha, beta: rocchioState.beta, gamma: rocchioState.gamma }
 
     return fetch(UPDATE_API_URL, {
       method: 'POST',
@@ -117,9 +130,9 @@ const DisplayResults = (props) => {
             // Must map all query terms to stemmer, then check if any token is a stemmed
             return queryList.map((v) => STEMMER(v)).includes(STEMMER(token.replace(/[^a-zA-Z0-9 ]/g, "")).toLowerCase()) ? <b> {token}</b> : ` ${token}`
           })
-        }</p>)      
+        }</p>)
       }
-    } 
+    }
   ];
 
   return (
@@ -147,7 +160,7 @@ const DisplayResults = (props) => {
         </Fade>
       </Modal>
       <div style={{ display: "flex", flexDirection: "row" }}>
-        <Button style={{ width: "20%", margin: "0.5% 0% 0.5% 10%", border: "0.5px solid #088cb1" }} id="re-query"
+        <Button style={{ width: "20%", maxHeight: "10vh", margin: "0.5% 0% 0.5% 10%", border: "0.5px solid #088cb1" }} id="re-query"
           onClick={(e) => {
             // Clear results by setting to undefined
             // Clear old query? 
@@ -158,9 +171,40 @@ const DisplayResults = (props) => {
         >
           Home
         </Button>
-        <Button style={{ width: "20%", margin: "0.5% 0 0.5% 40%", border: "0.5px solid #088cb1" }} id="re-query" onClick={updateQuery}>
-          Update Query
-        </Button>
+        <Accordion style={{ width: "30%", margin: "0.5% 0 0.5% 30%", border: "0.5px solid #088cb1" }} expanded={expanded === 'panel1'} onChange={handleChange('panel1')}>
+          <AccordionSummary
+            expandIcon={<>{!expanded ? "Options" : ""} <ExpandMoreIcon /></>}
+            aria-controls="panel1bh-content"
+            id="panel1bh-header"
+          >
+            <Button style={{ width: "90%", margin: "0" }} id="re-query" onClick={updateQuery}>
+              Update Query
+            </Button>
+          </AccordionSummary>
+          <AccordionDetails>
+            <Typography style={{ display: "flex", flexDirection: "row" }}>
+              <div style={{width: "20%"}} title="Weight of Original Query">Alpha:</div>
+              <Slider
+                style={{ marginLeft: "20px" }} step={0.1} marks min={0} max={1} getAriaValueText={(val) => val} valueLabelDisplay="auto" value={rocchioState.alpha} 
+                onChange={(e) => setRocchioState({ ...rocchioState, alpha: e.target.value })} />
+            </Typography>
+            <Typography style={{ display: "flex", flexDirection: "row" }}>
+              <div style={{ width: "20%" }} title="Weight of Relevant Documents">Beta</div>
+              <Slider
+                style={{ marginLeft: "20px" }} step={0.1} marks min={0} max={1} getAriaValueText={(val) => val} valueLabelDisplay="auto" value={rocchioState.beta}
+                onChange={(e) => setRocchioState({ ...rocchioState, beta: e.target.value })} />
+            </Typography>
+            <Typography style={{ display: "flex", flexDirection: "row" }}>
+              <div style={{ width: "20%" }} title="Weight of Irrelevant Documents">
+              Gamma:
+              </div>
+              <Slider
+                style={{ marginLeft: "20px" }} step={0.1} marks min={0} max={1} getAriaValueText={(val) => val} valueLabelDisplay="auto" value={rocchioState.gamma}
+                onChange={(e) => setRocchioState({ ...rocchioState, gamma: e.target.value })} />
+            </Typography>
+          </AccordionDetails>
+        </Accordion>
+
       </div>
       <DataGrid
         columns={columns}

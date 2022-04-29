@@ -29,7 +29,6 @@
 ## ACTIONS
 * run the crawler to get more tweets (few thousand)
     - Grant: "soccer"
-    - Will: "california"
     - Michael: "rock"
 
 ## Optimizations

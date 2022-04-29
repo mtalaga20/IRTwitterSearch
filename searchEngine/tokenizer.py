@@ -12,6 +12,8 @@ def tokenize_query(queryString):
 
     # Replace punctuation
     queryString = re.sub(r"[^a-zA-Z0–9 ]", "", queryString)
+    queryString = queryString.replace('[^\w\s]','') #Punctuation
+    queryString = queryString.replace('\d+', '') #Hashtags
     # Split string on SPACES
     queryList = queryString.lower().split(" ")
     # Remove stop words

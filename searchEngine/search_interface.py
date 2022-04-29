@@ -31,6 +31,7 @@ import pandas as pd
 from collections import Counter
 from icecream import ic
 
+TOP_K = 25
 INDEX_COL = "tweet_path"
 DATA_DIR = osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data'))
 CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content.csv')
@@ -85,8 +86,7 @@ def Search(query, collection, vs):
         cosSimDictionary[i] = cosineSimilarity(vector, queryVector, query_magnitude)
     cosSimDictionary = Counter(cosSimDictionary)
     
-    k_tweets = 10 #number of relevant tweets to return
-    cosSimDictionary = cosSimDictionary.most_common(k_tweets)
+    cosSimDictionary = cosSimDictionary.most_common(TOP_K)
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]  # TODO find candidate docs before computing cosine sim
     candidates = [tuple[0] for tuple in cosSimDictionary]
     filtered_queryterms = sorted(queryTokenList)
@@ -112,8 +112,7 @@ def Vector_Search(query_v, collection, queryTokenList):
         vector = vs[i]
         cosSimDictionary[i] = cosineSimilarity(vector, query_v, query_magnitude)
     cosSimDictionary = Counter(cosSimDictionary)
-    k_tweets = 10  # number of relevant tweets to return
-    cosSimDictionary = cosSimDictionary.most_common(k_tweets)
+    cosSimDictionary = cosSimDictionary.most_common(TOP_K)
     cosSimDictionary = [x for x in cosSimDictionary if x[1] != 0]  # TODO find candidate docs before computing cosine sim
     candidates = [tuple[0] for tuple in cosSimDictionary]
     filtered_queryterms = sorted(queryTokenList)

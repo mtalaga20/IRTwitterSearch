@@ -15,6 +15,7 @@ sys.path.append('.')
 
 
 # # -----------------------------------------------------
+#Likely not needed anymore
 #from invertedIndexer import invertedIndex
 #from proximity import make_proximity_score_vector
 
@@ -157,5 +158,3 @@ def load_data():
     index = pd.read_pickle(II_PATH)  # TODO only read in pickle once
     vs = pd.read_pickle(VS_PATH)  # TODO only read in pickle once
     return df, index, vs
-
-#create_Index()

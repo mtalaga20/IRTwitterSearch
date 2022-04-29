@@ -253,7 +253,7 @@ class Spider:
             # Replaces all whitespace with just basic space
             tweetText = re.sub(r"\s", " ", tweetTag.get_text()) #TODO: Make unicode fun
             primaryUser = userJsonData[0]
-            tweets.append((primaryUser["id_str"], primaryUser["screen_name"], primaryUser["name"], permaPath, tweetText))
+            tweets.append((permaPath, primaryUser["id_str"], primaryUser["screen_name"], primaryUser["name"], tweetText))
         return tweets
         
     @staticmethod
@@ -294,7 +294,7 @@ if __name__ == '__main__':
     args = argparser.parse_args()
     param: str = args.param
     output_dir = args.output_dir
-    target_content_path = osp.join(output_dir, f'content_{param}.csv')
+    target_content_path = osp.join(output_dir, f'content.csv')
     target_url_repo_path = osp.join(output_dir, 'url_repo.txt')
     target_url_crawlTime_path = osp.join(output_dir, "url_crawl_time.txt")
     target_url_frontier_path = osp.join(output_dir, "url_frontier.txt")

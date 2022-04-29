@@ -3,8 +3,6 @@
 .DS_*
 
 data/indexes/*
-data/crawlData/url_crawl_time.txt
-data/crawlData/url_repo.txt
 
 # to keep empty dirs
 !.gitkeep

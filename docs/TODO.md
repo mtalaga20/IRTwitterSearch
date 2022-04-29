@@ -3,7 +3,6 @@
 
 ## Crawling
 * Load/Save URL Frontier for Crawler
-* Tweet path out of order
 
 ## Indexing
 * evaluate the indexing structure to decrease size on disk? (if we have time)

@@ -1,7 +1,7 @@
 """
 
 """
-
+import numpy as np
 from icecream import ic
 
 
@@ -20,8 +20,16 @@ def vectorSpace(invertedIndex, term_count, doc_count):
     vector_space = [[] for i in range(doc_count)] #empty list
     term_position = 0
     for term, values in invertedIndex.items():
-        idf = values[0][2]
-        for doc in values[1]: #Update positions in vector space
+        df = len(values)
+        tf = 0
+        #for i in range(len(values)):
+            #tf += values[i][1]
+        idf = np.log10(doc_count/df)
+        #idf = values[0][2]
+        #for doc in values[1]: #Update positions in vector space
+        #ic(term, values)
+        for doc in values:
+            #ic(doc)
             docID, tf = doc[0], doc[1]
             weight = idf * tf
             if weight > 0:
@@ -29,10 +37,11 @@ def vectorSpace(invertedIndex, term_count, doc_count):
         term_position += 1
     return vector_space
 
-def createQueryVector(queryList, invertedIndex):
+def createQueryVector(queryList, doc_count, invertedIndex):
     """
     Structure: [(termID, weight) for each word in query]
     :param queryList: List of tokens making up query (post-tokenizing)
+    :param doc_count: Integer for the number of tweets
     :param invertedIndex: Index of terms as dict
         # NOTE: Maybe we can replace with len(term_idf_dict)?
     :return: Vector 1 x (query_term_count) size representing the query
@@ -42,7 +51,9 @@ def createQueryVector(queryList, invertedIndex):
 
     term_pos = 0
     for term, values in invertedIndex.items():
-        idf = values[0][2]
+        #idf = values[0][2]
+        df = len(values)
+        idf = np.log10(doc_count/df)
         for word in queryList:
             if word == term:
                 vector.append((term_pos, idf))

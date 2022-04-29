@@ -4,6 +4,7 @@
 
 import sys
 # TODO - Need to fix error causes different import methods required for running API and running normally
+
 from searchEngine.invertedIndexer import invertedIndex
 from searchEngine.proximity import make_proximity_score_vector
 
@@ -11,14 +12,16 @@ from searchEngine.rocchio import rocchio
 from searchEngine.tokenizer import tokenize, tokenize_query
 from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
 sys.path.append('.')
-# # -----------------------------------------------------
-# from invertedIndexer import invertedIndex
-# from proximity import make_proximity_score_vector
 
-# from rocchio import rocchio
-# from tokenizer import tokenize, tokenize_query
-# from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
-# sys.path.append('.')
+
+# # -----------------------------------------------------
+#from invertedIndexer import invertedIndex
+#from proximity import make_proximity_score_vector
+
+#from rocchio import rocchio
+#from tokenizer import tokenize, tokenize_query
+#from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
+#sys.path.append('.')
 # # -----------------------------------------------------
 import os.path as osp, os
 import pickle
@@ -29,7 +32,7 @@ from icecream import ic
 
 INDEX_COL = "tweet_path"
 DATA_DIR = osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data'))
-CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content.csv')
+CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content_rock.csv')
 II_PATH = osp.join(DATA_DIR, "indexes", "IItest.pkl")
 VS_PATH = osp.join(DATA_DIR, "indexes", "VStest.pkl")
 
@@ -67,8 +70,9 @@ def Search(query, collection, vs):
     queryTokenList = tokenize_query(query)
 
     term_count = len(vs[0])
+    doc_count = len(vs)
     # Create query vector
-    queryVector = createQueryVector(queryTokenList, collection)
+    queryVector = createQueryVector(queryTokenList, doc_count, collection)
 
     # Calculate cosine similarities and store in dictionary
     cosSimDictionary = {}
@@ -154,4 +158,6 @@ def load_data():
     vs = pd.read_pickle(VS_PATH)  # TODO only read in pickle once
     return df, index, vs
 
-create_Index()
+#create_Index()
+#df, index, vs = load_data()
+#API_Query("dwayne rock", df, index, vs)

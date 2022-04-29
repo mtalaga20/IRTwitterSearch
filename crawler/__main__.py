@@ -174,8 +174,8 @@ class Spider:
         
         valid &= not re.compile("/account/deactivated").search(href)
         valid &= not re.compile("/settings/deactivated").search(href)
-        if ("&lang=" in href):
-            if ("&lang=en" in href):
+        if ("lang=" in href):
+            if ("lang=en" in href):
                 return valid
             else:
                 return False

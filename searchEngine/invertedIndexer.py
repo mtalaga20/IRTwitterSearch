@@ -29,7 +29,8 @@ def invertedIndex(tweets, tweet_count):
         docID = collection[i][1]
         if collection[i][0] != current_term: #New term
             if current_term != "":#Add previous term to dict
-                dictionary.update({current_term: [(df, tf, (np.log10(tweet_count/df))), new_post]})
+                #dictionary.update({current_term: [(df, tf, (np.log10(tweet_count/df))), new_post]})
+                dictionary.update({current_term: new_post})
             df, tf, dtf = 1, 1, 1
             term_count += 1
             current_term = collection[i][0]

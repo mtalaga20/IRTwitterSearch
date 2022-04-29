@@ -21,7 +21,7 @@ def find_nearest(container: list[int], target: int) -> int:
 
 
 def get_indices(index: dict, token: str, target_doc_id: str) -> list[str]:
-    for doc_id, _, indices in index[token][1]:
+    for doc_id, _, indices in index[token]:
         if doc_id == target_doc_id:
             return indices
     return []

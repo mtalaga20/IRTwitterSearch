@@ -25,6 +25,20 @@ const style = {
   p: 4,
 };
 
+const HighlightData = (tweetStr, queryList) => {
+  if (!tweetStr) {
+    // Cannot print anything for undefined
+    return
+  }
+  let tweetText = tweetStr.split(" ")
+  return <p>{
+    // Match case and punctation free
+    tweetText.map((token) => {
+      // Must map all query terms to stemmer, then check if any token is a stemmed
+      return queryList.map((v) => STEMMER(v)).includes(STEMMER(token.replace(/[^a-zA-Z0-9 ]/g, "")).toLowerCase()) ? <b> {token}</b> : ` ${token}`
+    })
+  }</p>
+}
 
 const MapAPI_Data = ([rank, link, tweet]) => {
   // Used for mapping what we get from the API to how we display it
@@ -99,10 +113,11 @@ const DisplayResults = (props) => {
         let tweetText = params.value.split(" ")
         return (<p>{
           // Match case and punctation free
-              tweetText.map((token) => {
-                // Must map all query terms to stemmer, then check if any token is a stemmed
-                return queryList.map((v) => STEMMER(v)).includes(STEMMER(token.replace(/[^a-zA-Z0-9 ]/g, "")).toLowerCase()) ? <b> {token}</b> : ` ${token}`})
-            }</p>)
+          tweetText.map((token) => {
+            // Must map all query terms to stemmer, then check if any token is a stemmed
+            return queryList.map((v) => STEMMER(v)).includes(STEMMER(token.replace(/[^a-zA-Z0-9 ]/g, "")).toLowerCase()) ? <b> {token}</b> : ` ${token}`
+          })
+        }</p>)      
       }
     } 
   ];
@@ -126,7 +141,7 @@ const DisplayResults = (props) => {
               {title}
             </Typography>
             <Typography id="transition-modal-description" sx={{ mt: 2 }}>
-              {modalText}
+              {HighlightData(modalText, queryList)}
             </Typography>
           </Box>
         </Fade>

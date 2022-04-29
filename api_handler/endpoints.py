@@ -15,12 +15,14 @@ from pathlib import Path
 import sys
 path_root = Path(__file__).parents[1]
 sys.path.append(str(path_root))
-from searchEngine.search_interface import API_Query, relevant_user_tweets
+from searchEngine.search_interface import API_Query, load_data, relevant_user_tweets
 
 
 DIR_PATH = osp.dirname(osp.realpath(__file__))
 
 endpoints: dict[tuple[str, str], Callable[[], Any]] = {}
+
+API_DF, API_INDEX, API_VS = load_data()
 
 def register_endpoint(endpoint: str, request_type: str = 'GET') -> Callable:
     def _register_endpoint(fn: Callable) -> Callable:
@@ -43,8 +45,8 @@ def updated_query():
     query: str = content['query']
     relevant_tweets = content["relevant_tweets"]
     irrelevant_tweets = content["irrelevant_tweets"]
-    query_v, _ = API_Query(query)
-    results: list = relevant_user_tweets(relevant_tweets, irrelevant_tweets, query_v, query)
+    query_v, _ = API_Query(query, API_DF, API_INDEX, API_VS)
+    results: list = relevant_user_tweets(relevant_tweets, irrelevant_tweets, query_v, query, API_DF, API_INDEX, API_VS)
     return {'ranked_results': results}
 
 
@@ -52,5 +54,5 @@ def updated_query():
 def query():
     content = request.json
     query: str = content['query']
-    _, rel_tweets = API_Query(query)
+    _, rel_tweets = API_Query(query, API_DF, API_INDEX, API_VS)
     return {'ranked_results': rel_tweets}

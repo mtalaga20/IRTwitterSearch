@@ -33,7 +33,6 @@
 
 ## Optimizations
 * [hint: there is no need to construct the complete document vector, or loop through all dimensions in the vector space]
-* Rocchio alpha, beta, gamma, sliders on Frontend
 * Grant Fill In (sliders on frontend)
 * Percent match
 

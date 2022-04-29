@@ -1,26 +1,23 @@
 # PROJECT
 ## Front end
-* ~~matched token highlighting in front end~~
-* show percent match (maybe we already have this?)
-* ~~porter-stemmer front end for highlighting~~
 
 ## Crawling
-* ~~fix twitter specific parsing error in crawler (!!!)~~
-* add URL repository to disk (url, time crawled)
+* Load/Save URL Frontier for Crawler
+* Tweet path out of order
 
 ## Indexing
-* modify position information to work w/ stop list
 * evaluate the indexing structure to decrease size on disk? (if we have time)
 
 ## Search Engine
-* check code and make sure we are NOT looping through all dimensions for cosine similarity (but doc vals are still normalized)
 * semantic scoring with FastText embeddings? (if we have time)
+* Identify candidate documents that contain at least one query term.
 
 ## Analysis
 * evaluation as per project requirements (should show that adding RF and term proximity increase performance)
-
-## Infrastructure
-* connect front end to backend/ check search engine interface
+    - Needs further investigation
+    - Create framework for evaluating engine
+    - Keep old versions of search engine
+    - Prec/Rec Curves?
 
 ## Deployment
 * nginx w/ reverse proxy, nginx static w\ gunicorn for api
@@ -32,6 +29,15 @@
 
 ## ACTIONS
 * run the crawler to get more tweets (few thousand)
+    - Grant: "soccer"
+    - Will: "california"
+    - Michael: "rock"
+
+## Optimizations
+* [hint: there is no need to construct the complete document vector, or loop through all dimensions in the vector space]
+* Rocchio alpha, beta, gamma, sliders on Frontend
+* Grant Fill In (sliders on frontend)
+* Percent match
 
 # PRESENTATION
 * design outline

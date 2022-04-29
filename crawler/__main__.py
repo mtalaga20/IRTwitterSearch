@@ -174,6 +174,11 @@ class Spider:
         
         valid &= not re.compile("/account/deactivated").search(href)
         valid &= not re.compile("/settings/deactivated").search(href)
+        if ("&lang=" in href):
+            if ("&lang=en" in href):
+                return valid
+            else:
+                return False
         return valid
 
 
@@ -289,7 +294,7 @@ if __name__ == '__main__':
     args = argparser.parse_args()
     param: str = args.param
     output_dir = args.output_dir
-    target_content_path = osp.join(output_dir, 'content.csv')
+    target_content_path = osp.join(output_dir, f'content_{param}.csv')
     target_url_repo_path = osp.join(output_dir, 'url_repo.txt')
     target_url_crawlTime_path = osp.join(output_dir, "url_crawl_time.txt")
     target_url_frontier_path = osp.join(output_dir, "url_frontier.txt")

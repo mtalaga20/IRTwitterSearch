@@ -11,8 +11,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore"
 
 const STEMMER = require("@stdlib/nlp-porter-stemmer")
 
-const API_URL = "http://localhost:8000/query"
-const UPDATE_API_URL = "http://localhost:8000/updated_query"
+const API_URL = "https://www.tweetletweetle.com/api/query"
+const UPDATE_API_URL = "https://www.tweetletweetle.com/api/updated_query"
 
 const style = {
   position: 'absolute',

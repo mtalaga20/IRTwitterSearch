@@ -3,6 +3,7 @@
 .DS_*
 
 data/indexes/*
+.venv
 
 # to keep empty dirs
 !.gitkeep

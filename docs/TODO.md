@@ -36,6 +36,16 @@
 * Grant Fill In (sliders on frontend)
 * Percent match
 
+# FIGURES
+* structure index
+* vector space
+* overall architecture
+* search performance using RF, term proximity, etc vs default (recall precision curves)
+* preprocessing pipeline
+* rank vs frequency dist of terms vs zipf dist
+* time complexity scaling (indexing vs # of docs, search vs # of search terms)
+* show that web crawler works with priority using distribution
+
 # PRESENTATION
 * design outline
 * make figures

@@ -6,7 +6,7 @@ def invertedIndex(tweets, tweet_count):
     adds the to a sorted collection that has each word and its associated tweet id.
     The collection is added to a dictionary where it further organizes
     the data to be used later for comparison.
-    Dictionary = {"Term" : [(df, tf, idf) , [(docID, tf, [indices])...(docID, tf, [indices])]]}
+    Dictionary = {"Term" : [(docID, tf, [indices])...(docID, tf, [indices])]}
     :param tweets: pandas column that has several tweets
     :param tweet_count: Count of tweets as an int
     :return: Inverted index table as a dictionary

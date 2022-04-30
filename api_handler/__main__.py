@@ -37,8 +37,8 @@ def main():
 
     app = Flask(
         __name__,
-        template_folder = osp.join(DIR_PATH, 'test_frontend', 'templates'),
-        static_folder = osp.join(DIR_PATH, 'test_frontend', 'static'),
+        # template_folder = osp.join(DIR_PATH, 'test_frontend', 'templates'),
+        # static_folder = osp.join(DIR_PATH, 'test_frontend', 'static'),
     )
 
     # enables JSON with CORS

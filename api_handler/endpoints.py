@@ -35,9 +35,9 @@ def register_endpoint(endpoint: str, request_type: str = 'GET') -> Callable:
     return _register_endpoint
 
 
-@register_endpoint('/')
-def home():
-    return render_template('index.html')
+# @register_endpoint('/')
+# def home():
+#     return render_template('index.html')
 
 @register_endpoint("/updated_query", "post")
 def updated_query():

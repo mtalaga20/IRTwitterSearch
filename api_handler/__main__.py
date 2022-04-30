@@ -15,7 +15,7 @@ from icecream import ic
 
 # library imports
 from flask import Flask
-from flask_cors import CORS
+# from flask_cors import CORS
 
 # local imports
 from endpoints import endpoints
@@ -42,8 +42,8 @@ def main():
     )
 
     # enables JSON with CORS
-    CORS(app)
-    app.config['CORS_HEADERS'] = 'Content-Type'
+    # CORS(app)
+    # app.config['CORS_HEADERS'] = 'Content-Type'
 
     # register routes
     for (endpoint, request_type), callback in endpoints.items():

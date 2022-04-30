@@ -1,0 +1,18 @@
+version: "3"
+
+services:
+  nginx:
+    container_name: nginx-service
+    build:
+      context: /home/ubuntu/nginx_https_docker
+      dockerfile: /home/ubuntu/nginx_https_docker/docker/nginx.Dockerfile
+    ports:
+      - 80:80
+      - 443:443
+    volumes:
+      - ./config:/config
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /tmp/acme_challenge:/tmp/acme_challenge
+      - /home/ubuntu/IRTwitterSearch/frontend/build:/static
+    network_mode: host
+    restart: always

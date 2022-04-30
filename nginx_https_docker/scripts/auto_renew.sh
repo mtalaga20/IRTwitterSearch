@@ -1,0 +1,2 @@
+# checks to auto renew https certificate bi-weekly
+crontab -e 0 0 * * 0 expr `date +\%W` \% 2 > /dev/null || docker-compose -f /home/ubuntu/nginx_https_docker/docker-compose-le.yaml up && docker exec -it nginx-service nginx -s reload

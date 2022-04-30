@@ -6,7 +6,7 @@ import os.path as osp
 
 from icecream import ic
 
-from flask import request, render_template
+from flask import request
 from functools import wraps
 
 from typing import Callable, Any

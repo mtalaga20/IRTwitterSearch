@@ -18,8 +18,9 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "pre-run": "copy ..\\.env . & cp ../.env .",
+    "start": "npm run pre-run & react-scripts start",
+    "build": "npm run pre-run & react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },

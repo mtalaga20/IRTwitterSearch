@@ -3,6 +3,8 @@
 """
 
 # OS, system, paths
+from dotenv import load_dotenv
+import os
 import os.path as osp, os
 DIR_PATH = osp.dirname(osp.realpath(__file__))
 import sys; sys.path.append(DIR_PATH)
@@ -13,9 +15,17 @@ import argparse
 # debugging
 from icecream import ic
 
+# Environment vars
+
+load_dotenv()
+
 # library imports
 from flask import Flask
-# from flask_cors import CORS
+
+DEPLOY = os.getenv("REACT_APP_DEPLOY")
+
+if (DEPLOY == "false"):
+    from flask_cors import CORS
 
 # local imports
 from endpoints import endpoints
@@ -42,8 +52,9 @@ def main():
     )
 
     # enables JSON with CORS
-    # CORS(app)
-    # app.config['CORS_HEADERS'] = 'Content-Type'
+    if (DEPLOY == "false"):
+        CORS(app)
+        app.config['CORS_HEADERS'] = 'Content-Type'
 
     # register routes
     for (endpoint, request_type), callback in endpoints.items():

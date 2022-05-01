@@ -29,7 +29,7 @@ import pandas as pd
 from collections import Counter
 from icecream import ic
 
-TOP_K = 25
+TOP_K = 100
 INDEX_COL = "tweet_path"
 DATA_DIR = osp.abspath(osp.join(osp.realpath(__file__), os.pardir, os.pardir, 'data'))
 CONTENT_PATH = osp.join(DATA_DIR, 'crawlData', 'content.csv')

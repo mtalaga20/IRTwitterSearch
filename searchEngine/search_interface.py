@@ -7,7 +7,6 @@ import sys
 
 from searchEngine.invertedIndexer import invertedIndex
 from searchEngine.proximity import make_proximity_score_vector
-
 from searchEngine.rocchio import rocchio
 from searchEngine.tokenizer import tokenize, tokenize_query
 from searchEngine.vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace
@@ -18,7 +17,6 @@ sys.path.append('.')
 #Likely not needed anymore
 #from invertedIndexer import invertedIndex
 #from proximity import make_proximity_score_vector
-
 #from rocchio import rocchio
 #from tokenizer import tokenize, tokenize_query
 #from vectorSpace import cosineSimilarity, createQueryVector, vectorMagnitude, vectorSpace#
@@ -97,8 +95,8 @@ def Search(query, collection, vs):
     cos_weight, proxim_weight = 1.0, 0.2
     for i in range(len(cosSimDictionary)):
         relevant_tweets.append((cosSimDictionary[i][0], ((cosSimDictionary[i][1] * cos_weight) + (proximity_vector[i] * proxim_weight))))
-
-    #ic(queryVector, relevant_tweets)
+    relevant_tweets.sort(key=lambda x:x[1], reverse=True)
+    relevant_tweets = [x for x in relevant_tweets if x[1] != 0]
     return queryVector,relevant_tweets
 
 def Vector_Search(query_v, collection, queryTokenList):
@@ -124,7 +122,9 @@ def Vector_Search(query_v, collection, queryTokenList):
     cos_weight, proxim_weight = 1.0, 0.2
     for i in range(len(cosSimDictionary)):
         relevant_tweets.append((cosSimDictionary[i][0], ((cosSimDictionary[i][1] * cos_weight) + (proximity_vector[i] * proxim_weight))))
-
+    ic(relevant_tweets)
+    relevant_tweets.sort(key=lambda x:x[1], reverse=True)
+    relevant_tweets = [x for x in relevant_tweets if x[1] != 0]
     return relevant_tweets
 
 def compile_tweet_list(relevant_tweets, df):
@@ -157,3 +157,4 @@ def load_data():
     index = pd.read_pickle(II_PATH)  # TODO only read in pickle once
     vs = pd.read_pickle(VS_PATH)  # TODO only read in pickle once
     return df, index, vs
+

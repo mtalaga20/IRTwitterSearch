@@ -10,7 +10,7 @@ Install requirements
 Create the index for the first time
 `py createIndex.py`
 
-Report 1 Link: https://docs.google.com/document/d/1vLxvuEUSEc3E4gaWYDZii0Zn77718zZmON62SXxyc6I/edit?usp=sharing
+Viewable at: https://www.tweetletweetle.com/
 
 # Frontend Setup
 Run "py api_handler" to run the backend

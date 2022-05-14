@@ -15,7 +15,7 @@ Viewable at: https://www.tweetletweetle.com/
 # Frontend Setup
 Run "py api_handler" to run the backend
 
-Separately, enter directory "frontend" and run "npm start"
+Separately, enter directory "frontend" and run "npm install" (first time) and "npm start" (everytime)
 
 This frontend was created using create-react-app
 
